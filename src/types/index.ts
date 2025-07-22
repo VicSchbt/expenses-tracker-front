@@ -1,7 +1,7 @@
 type Transaction = Expense | Income | Bill | Savings;
 
 type BaseTransaction = {
-  id: string;
+  id?: string;
   label: string;
   date: string;
   value: number;
@@ -9,7 +9,7 @@ type BaseTransaction = {
 
 type Expense = BaseTransaction & {
   type: 'expense';
-  categoryId: string;
+  categoryId?: string;
 };
 
 type Income = BaseTransaction & {
