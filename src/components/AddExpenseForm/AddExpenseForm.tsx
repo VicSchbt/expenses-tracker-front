@@ -18,11 +18,14 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select';
-
+import { toast } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AddExpenseFormValues, addExpenseSchema } from './config';
+import { useState } from 'react';
+import { createExpense } from '@/features/expenses/api';
 
 export default function AddExpenseForm() {
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<AddExpenseFormValues>({
     resolver: zodResolver(addExpenseSchema),
     defaultValues: {
@@ -33,12 +36,33 @@ export default function AddExpenseForm() {
     },
   });
 
-  const onSubmit = (data: AddExpenseFormValues) => {
-    const finalExpense = {
-      ...data,
-      amount: parseFloat(data.value),
-    };
-    console.log('🧾 New expense added:', finalExpense);
+  const onSubmit = async (data: AddExpenseFormValues) => {
+    const amount = parseFloat(data.value);
+    if (Number.isNaN(amount)) {
+      form.setError('value', { message: 'Please enter a valid number' });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const payload = {
+        label: data.label.trim(),
+        value: amount,
+        date: data.date, // keep as 'YYYY-MM-DD'
+        categoryId: data.categoryId?.trim() ? data.categoryId : null,
+      };
+
+      const created = await createExpense(payload);
+
+      toast.success(`Expense added: ${created.label} (${created.value}€)`);
+      form.reset();
+    } catch (error) {
+      toast.error('Failed to add expense');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -105,6 +129,7 @@ export default function AddExpenseForm() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">No category</SelectItem>
                     <SelectItem value="groceries">Groceries</SelectItem>
                     <SelectItem value="rent">Rent</SelectItem>
                     <SelectItem value="transport">Transport</SelectItem>
@@ -117,7 +142,9 @@ export default function AddExpenseForm() {
           )}
         />
 
-        <Button type="submit">Add Expense</Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? 'Adding...' : 'Add Expense'}
+        </Button>
       </form>
     </Form>
   );

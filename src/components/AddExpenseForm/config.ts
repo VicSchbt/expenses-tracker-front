@@ -7,7 +7,7 @@ export const addExpenseSchema = z.object({
     message: 'Enter a valid positive number',
   }),
   date: z.string().min(1, 'Date is required'),
-  categoryId: z.string().min(1, 'Select a category'),
+  categoryId: z.string().optional(),
 });
 
 export type AddExpenseFormValues = z.infer<typeof addExpenseSchema>;
