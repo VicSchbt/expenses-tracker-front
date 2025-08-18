@@ -1,4 +1,4 @@
-type Transaction = Expense | Income | Bill | Savings;
+export type Transaction = Expense | Income | Bill | Savings;
 
 type BaseTransaction = {
   id?: string;
@@ -7,35 +7,35 @@ type BaseTransaction = {
   value: number;
 };
 
-type Expense = BaseTransaction & {
+export type Expense = BaseTransaction & {
   type: 'expense';
   categoryId?: string;
 };
 
-type Income = BaseTransaction & {
+export type Income = BaseTransaction & {
   type: 'income';
   source?: string;
   isRecurrent?: boolean;
   recurrenceRule?: string;
 };
 
-type Bill = BaseTransaction & {
+export type Bill = BaseTransaction & {
   type: 'bill';
   recurrenceRule: string;
   endDate?: string;
   note?: string;
 };
 
-type Savings = BaseTransaction & {
+export type Savings = BaseTransaction & {
   type: 'savings';
   goalId?: string;
 };
 
-type Category = {
+export type Category = {
   id: string;
   name: string;
   color?: string; // For UI
   icon?: string;
 };
 
-type Recurrence = 'daily' | 'weekly' | 'monthly' | 'yearly';
+export type Recurrence = 'daily' | 'weekly' | 'monthly' | 'yearly';

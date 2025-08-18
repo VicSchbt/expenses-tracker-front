@@ -1,6 +1,8 @@
 'use client';
 
-import { useAuthStore } from '@/store/auth';
+import { dtosToTransactions } from '@/mappers/transaction';
+import { useAuthStore } from '@/store/auth.store';
+import { Transaction } from '@/types';
 
 export type CreateExpensePayload = {
   label: string;
@@ -9,6 +11,7 @@ export type CreateExpensePayload = {
   categoryId?: string | null;
 };
 
+// transport only, not used in the app
 export type ExpenseDTO = {
   id: string;
   label: string;
@@ -54,7 +57,7 @@ export async function createExpense(payload: CreateExpensePayload): Promise<Expe
   return body as ExpenseDTO;
 }
 
-export async function getExpenses(): Promise<ExpenseDTO[]> {
+export async function getExpenses(): Promise<Transaction[]> {
   const res = await fetch(`${BASE}/api/expenses`, {
     headers: { ...authHeader() },
     cache: 'no-store',
@@ -70,5 +73,5 @@ export async function getExpenses(): Promise<ExpenseDTO[]> {
     throw new Error(msg);
   }
 
-  return body as ExpenseDTO[];
+  return dtosToTransactions(body as ExpenseDTO[]);
 }

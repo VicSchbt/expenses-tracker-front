@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuthStore } from '@/store/auth';
+import { useAuthStore } from '@/store/auth.store';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 

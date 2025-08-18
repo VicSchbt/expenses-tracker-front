@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/auth';
+import { useAuthStore } from '@/store/auth.store';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
