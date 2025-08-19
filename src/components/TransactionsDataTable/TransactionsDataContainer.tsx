@@ -2,10 +2,10 @@
 
 import { useTransactionsStore } from '@/store/transactions.store';
 import { columns } from './columns';
-import { ExpensesDataTable } from './ExpensesDataTable';
+import { TransactionsDataTable } from './TransactionsDataTable';
 import { useEffect } from 'react';
 
-export default function ExpensesDataContainer() {
+export default function TransactionsDataContainer() {
   const { fetchAll, transactions } = useTransactionsStore();
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export default function ExpensesDataContainer() {
 
   return (
     <div className="container mx-auto py-10">
-      <ExpensesDataTable columns={columns} data={transactions} />
+      <TransactionsDataTable columns={columns} data={transactions} />
     </div>
   );
 }

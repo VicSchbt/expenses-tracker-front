@@ -10,15 +10,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-interface ExpensesDataTableProps<TData, TValue> {
+interface TransactionsDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function ExpensesDataTable<TData, TValue>({
+export function TransactionsDataTable<TData, TValue>({
   columns,
   data,
-}: ExpensesDataTableProps<TData, TValue>) {
+}: TransactionsDataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
