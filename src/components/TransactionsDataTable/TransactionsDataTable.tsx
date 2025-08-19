@@ -1,6 +1,14 @@
 'use client';
 
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { useState } from 'react';
+import {
+  ColumnDef,
+  SortingState,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 import {
   Table,
   TableBody,
@@ -19,10 +27,17 @@ export function TransactionsDataTable<TData, TValue>({
   columns,
   data,
 }: TransactionsDataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
   });
 
   return (
