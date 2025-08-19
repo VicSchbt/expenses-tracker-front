@@ -21,11 +21,16 @@ import {
 import { toast } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AddExpenseFormValues, addExpenseSchema } from './config';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createExpense } from '@/features/expenses/api';
 
-export default function AddExpenseForm() {
+interface AddExpenseFormProps {
+  onSubmitted?: () => void;
+}
+const AddExpenseForm = ({ onSubmitted }: AddExpenseFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const firstFieldRef = useRef<HTMLInputElement | null>(null);
+
   const form = useForm<AddExpenseFormValues>({
     resolver: zodResolver(addExpenseSchema),
     defaultValues: {
@@ -35,6 +40,10 @@ export default function AddExpenseForm() {
       categoryId: '',
     },
   });
+
+  useEffect(() => {
+    firstFieldRef.current?.focus();
+  }, []);
 
   const onSubmit = async (data: AddExpenseFormValues) => {
     const amount = parseFloat(data.value);
@@ -69,8 +78,12 @@ export default function AddExpenseForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="max-w-md space-y-6 rounded-md border p-6"
+        className="space-y-6"
+        aria-describedby="add-expense-help"
       >
+        <p id="add-expense-help" className="sr-only">
+          Fill in the expense details and submit the form to add a new expense.
+        </p>
         {/* Label */}
         <FormField
           control={form.control}
@@ -79,7 +92,14 @@ export default function AddExpenseForm() {
             <FormItem>
               <FormLabel>Label</FormLabel>
               <FormControl>
-                <Input placeholder="What is this expense?" {...field} />
+                <Input
+                  placeholder="What is this expense?"
+                  {...field}
+                  ref={(el) => {
+                    field.ref(el);
+                    firstFieldRef.current = el; // used for initial focus
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,7 +114,7 @@ export default function AddExpenseForm() {
             <FormItem>
               <FormLabel>Amount (€)</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="0.00" {...field} />
+                <Input type="text" inputMode="decimal" placeholder="0.00" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -142,10 +162,12 @@ export default function AddExpenseForm() {
           )}
         />
 
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading} aria-busy={isLoading} className="w-full">
           {isLoading ? 'Adding...' : 'Add Expense'}
         </Button>
       </form>
     </Form>
   );
-}
+};
+
+export default AddExpenseForm;
