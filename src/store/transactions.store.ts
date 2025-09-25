@@ -1,4 +1,4 @@
-import { ExpenseDTO, getExpenses } from '@/features/expenses/api';
+import { TransactionDTO, getTransactions } from '@/features/expenses/api';
 import { Bill, Expense, Income, Savings, Transaction } from '@/types';
 import { create } from 'zustand';
 
@@ -30,7 +30,7 @@ export const useTransactionsStore = create<TransactionsState>((set, get) => ({
     set({ isLoading: true, error: undefined });
 
     try {
-      const transactions = await getExpenses();
+      const transactions = await getTransactions();
 
       // If you keep a flat "transactions" list, you can merge later.
       set({

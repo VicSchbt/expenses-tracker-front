@@ -12,7 +12,7 @@ export type CreateExpensePayload = {
 };
 
 // transport only, not used in the app
-export type ExpenseDTO = {
+export type TransactionDTO = {
   id: string;
   label: string;
   value: number;
@@ -30,8 +30,8 @@ function authHeader() {
 
 const BASE = process.env.NEXT_PUBLIC_API_URL;
 
-export async function createExpense(payload: CreateExpensePayload): Promise<ExpenseDTO> {
-  const res = await fetch(`${BASE}/api/expenses`, {
+export async function createExpense(payload: CreateExpensePayload): Promise<TransactionDTO> {
+  const res = await fetch(`${BASE}/api/transactions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -54,11 +54,11 @@ export async function createExpense(payload: CreateExpensePayload): Promise<Expe
     throw new Error(msg);
   }
 
-  return body as ExpenseDTO;
+  return body as TransactionDTO;
 }
 
-export async function getExpenses(): Promise<Transaction[]> {
-  const res = await fetch(`${BASE}/api/expenses`, {
+export async function getTransactions(): Promise<Transaction[]> {
+  const res = await fetch(`${BASE}/api/transactions`, {
     headers: { ...authHeader() },
     cache: 'no-store',
   });
@@ -73,5 +73,5 @@ export async function getExpenses(): Promise<Transaction[]> {
     throw new Error(msg);
   }
 
-  return dtosToTransactions(body as ExpenseDTO[]);
+  return dtosToTransactions(body as TransactionDTO[]);
 }

@@ -1,4 +1,4 @@
-import { ExpenseDTO } from '@/features/expenses/api';
+import { TransactionDTO } from '@/features/expenses/api';
 import { Transaction } from '@/types';
 
 // date parser that handles ISO or 'YYYY-MM-DD'
@@ -11,7 +11,7 @@ function parseAPIDate(s: string): Date {
   return new Date(y, (m ?? 1) - 1, d ?? 1);
 }
 
-export function dtoToTransaction(dto: ExpenseDTO): Transaction {
+export function dtoToTransaction(dto: TransactionDTO): Transaction {
   return {
     id: dto.id,
     label: dto.label,
@@ -22,7 +22,7 @@ export function dtoToTransaction(dto: ExpenseDTO): Transaction {
   };
 }
 
-export function dtosToTransactions(dtos: ExpenseDTO[]): Transaction[] {
+export function dtosToTransactions(dtos: TransactionDTO[]): Transaction[] {
   return dtos.map((d) => dtoToTransaction(d));
 }
 

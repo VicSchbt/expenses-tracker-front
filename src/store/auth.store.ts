@@ -23,7 +23,7 @@ export const useAuthStore = create<AuthState>()(
         const token = `Basic ${basic}`;
 
         // ping backend to validate creds (any protected route works)
-        const res = await fetch(`${API_BASE}/api/expenses`, {
+        const res = await fetch(`${API_BASE}/api/transactions`, {
           headers: { Authorization: token },
           cache: 'no-store',
         });
