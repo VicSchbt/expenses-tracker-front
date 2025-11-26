@@ -1,3 +1,5 @@
+import type { PaginatedTransactions } from './types/transaction';
+
 const API_BASE_URL = '/api';
 
 interface LoginRequest {
@@ -70,4 +72,41 @@ export function removeAuthToken(): void {
     return;
   }
   localStorage.removeItem('authToken');
+}
+
+interface GetCurrentMonthTransactionsParams {
+  page?: number;
+  limit?: number;
+}
+
+export async function getCurrentMonthTransactions(
+  params?: GetCurrentMonthTransactionsParams,
+): Promise<PaginatedTransactions> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const searchParams = new URLSearchParams();
+  if (params?.page) {
+    searchParams.append('page', params.page.toString());
+  }
+  if (params?.limit) {
+    searchParams.append('limit', params.limit.toString());
+  }
+
+  const queryString = searchParams.toString();
+  const url = `${API_BASE_URL}/transactions/expenses-refunds/current-month${
+    queryString ? `?${queryString}` : ''
+  }`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<PaginatedTransactions>(response);
 }
