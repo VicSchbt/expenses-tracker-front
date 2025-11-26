@@ -1,4 +1,4 @@
-import type { PaginatedTransactions } from './types/transaction';
+import type { PaginatedTransactions, Transaction } from './types/transaction';
 
 const API_BASE_URL = '/api';
 
@@ -72,6 +72,31 @@ export function removeAuthToken(): void {
     return;
   }
   localStorage.removeItem('authToken');
+}
+
+interface CreateExpenseRequest {
+  label: string;
+  date: string;
+  value: number;
+  categoryId?: string;
+}
+
+export async function createExpense(request: CreateExpenseRequest): Promise<Transaction> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/transactions/expense`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(request),
+  });
+
+  return handleResponse<Transaction>(response);
 }
 
 interface GetCurrentMonthTransactionsParams {
