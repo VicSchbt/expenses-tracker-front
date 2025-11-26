@@ -1,7 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Plus } from 'lucide-react';
 import { AuthGuard } from '@/components/auth-guard';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { getCurrentMonthTransactions } from '@/lib/api';
 import type { PaginatedTransactions } from '@/lib/types/transaction';
 
@@ -108,9 +118,37 @@ function TransactionsList() {
 }
 
 export default function Home() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   return (
     <AuthGuard>
-      <main className="flex min-h-screen flex-col items-center p-8 md:p-24">
+      <main className="relative flex min-h-screen flex-col items-center p-8 md:p-24">
+        <Button
+          onClick={() => setIsDialogOpen(true)}
+          className="fixed right-8 top-8 z-40"
+        >
+          <Plus />
+          Add Transaction
+        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Transaction</DialogTitle>
+              <DialogDescription>
+                This is where you will be able to add a new transaction. The form
+                will be implemented soon.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsDialogOpen(false)}
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <TransactionsList />
       </main>
     </AuthGuard>
