@@ -20,17 +20,6 @@ interface ApiError {
   statusCode: number;
 }
 
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const errorData: ApiError = await response.json().catch(() => ({
-      message: 'An error occurred',
-      statusCode: response.status,
-    }));
-    throw new Error(errorData.message || 'An error occurred');
-  }
-  return response.json();
-}
-
 export async function loginUser(credentials: LoginRequest): Promise<LoginResponse> {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
@@ -72,6 +61,29 @@ export function removeAuthToken(): void {
     return;
   }
   localStorage.removeItem('authToken');
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    let errorData: ApiError | null = null;
+    try {
+      errorData = (await response.json()) as ApiError;
+    } catch {
+      errorData = {
+        message: 'An error occurred',
+        statusCode: response.status,
+      };
+    }
+    if (response.status === 401) {
+      removeAuthToken();
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+      throw new Error(errorData.message || 'Authentication required');
+    }
+    throw new Error(errorData.message || 'An error occurred');
+  }
+  return response.json() as Promise<T>;
 }
 
 interface CreateExpenseRequest {

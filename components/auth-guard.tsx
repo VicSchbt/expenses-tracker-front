@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/use-auth-store';
+import { getAuthToken } from '@/lib/api';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -10,13 +11,19 @@ interface AuthGuardProps {
 
 export function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, logout } = useAuthStore();
 
   useEffect(() => {
+    const token = getAuthToken();
+    if (!token && isAuthenticated) {
+      logout();
+      router.push('/login');
+      return;
+    }
     if (!isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, logout, router]);
 
   if (!isAuthenticated) {
     return (
