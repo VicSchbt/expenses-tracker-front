@@ -1,3 +1,4 @@
+import type { Category } from './types/category';
 import type { PaginatedTransactions, Transaction } from './types/transaction';
 
 const API_BASE_URL = '/api';
@@ -147,3 +148,21 @@ export async function getCurrentMonthTransactions(
 
   return handleResponse<PaginatedTransactions>(response);
 }
+
+export async function getCategories(): Promise<Category[]> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/categories`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<Category[]>(response);
+}
+
