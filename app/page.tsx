@@ -16,7 +16,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { createExpense, getCurrentMonthTransactions } from '@/lib/api';
+import { createExpense, getCategories, getCurrentMonthTransactions } from '@/lib/api';
+import type { Category } from '@/lib/types/category';
 import type { PaginatedTransactions, TransactionType } from '@/lib/types/transaction';
 
 interface TransactionsListProps {
@@ -127,6 +128,9 @@ export default function Home() {
   const [transactionsRefreshKey, setTransactionsRefreshKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
   const [expenseForm, setExpenseForm] = useState<{
     label: string;
     date: string;
@@ -152,6 +156,29 @@ export default function Home() {
       });
     }
   };
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        setIsCategoriesLoading(true);
+        setCategoriesError(null);
+        const data = await getCategories();
+        setCategories(data);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to load categories';
+        setCategoriesError(message);
+      } finally {
+        setIsCategoriesLoading(false);
+      }
+    }
+    if (!isDialogOpen) {
+      return;
+    }
+    if (categories.length > 0 || isCategoriesLoading) {
+      return;
+    }
+    void fetchCategories();
+  }, [categories.length, isCategoriesLoading, isDialogOpen]);
 
   const transactionTypes: Array<{
     value: TransactionType;
@@ -279,9 +306,10 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="expense-category">Category ID (optional)</Label>
-                    <Input
+                    <Label htmlFor="expense-category">Category (optional)</Label>
+                    <select
                       id="expense-category"
+                      className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       value={expenseForm.categoryId}
                       onChange={(event): void =>
                         setExpenseForm((previous) => ({
@@ -289,8 +317,18 @@ export default function Home() {
                           categoryId: event.target.value,
                         }))
                       }
-                      placeholder="Category identifier"
-                    />
+                      disabled={isCategoriesLoading}
+                    >
+                      <option value="">No category</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.label}
+                        </option>
+                      ))}
+                    </select>
+                    {categoriesError && (
+                      <p className="text-sm text-destructive">{categoriesError}</p>
+                    )}
                   </div>
                 </section>
               )}
