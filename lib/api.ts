@@ -34,6 +34,12 @@
    color?: string | null;
  }
 
+ interface UpdateCategoryRequest {
+   label?: string;
+   icon?: string | null;
+   color?: string | null;
+ }
+
  export async function loginUser(credentials: LoginRequest): Promise<LoginResponse> {
    const response = await fetch(`${API_BASE_URL}/auth/login`, {
      method: 'POST',
@@ -188,4 +194,42 @@
    });
 
    return handleResponse<Category>(response);
+ }
+
+ export async function updateCategory(
+   id: string,
+   request: UpdateCategoryRequest,
+ ): Promise<Category> {
+   const token = getAuthToken();
+   if (!token) {
+     throw new Error('Authentication required');
+   }
+
+   const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
+     method: 'PATCH',
+     headers: {
+       'Content-Type': 'application/json',
+       Authorization: `Bearer ${token}`,
+     },
+     body: JSON.stringify(request),
+   });
+
+   return handleResponse<Category>(response);
+ }
+
+ export async function deleteCategory(id: string): Promise<void> {
+   const token = getAuthToken();
+   if (!token) {
+     throw new Error('Authentication required');
+   }
+
+   const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
+     method: 'DELETE',
+     headers: {
+       'Content-Type': 'application/json',
+       Authorization: `Bearer ${token}`,
+     },
+   });
+
+   await handleResponse<{ message: string }>(response);
  }
