@@ -24,8 +24,8 @@ export function AppNavbar() {
     <header className="border-b bg-background/80 backdrop-blur">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
-            ET
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md text-sm font-bold text-primary-foreground">
+            💰
           </span>
           <Link href="/" className="text-sm font-semibold">
             Expense Tracker
@@ -60,5 +60,3 @@ export function AppNavbar() {
     </header>
   );
 }
-
-

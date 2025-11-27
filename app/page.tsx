@@ -15,11 +15,14 @@ export default function Home() {
       <div className="min-h-screen bg-background">
         <AppNavbar />
         <main className="relative mx-auto flex max-w-5xl flex-col items-center px-4 py-8 md:px-8 md:py-12">
-          <AddTransactionDialog
-            onExpenseCreated={(): void =>
-              setTransactionsRefreshKey((previousRefreshKey) => previousRefreshKey + 1)
-            }
-          />
+          <div className="flex w-full justify-between">
+            <h1 className="mb-8 text-center text-4xl font-bold">Expense Tracker</h1>
+            <AddTransactionDialog
+              onExpenseCreated={(): void =>
+                setTransactionsRefreshKey((previousRefreshKey) => previousRefreshKey + 1)
+              }
+            />
+          </div>
           <TransactionsList refreshKey={transactionsRefreshKey} />
         </main>
       </div>

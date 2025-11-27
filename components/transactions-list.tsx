@@ -1,55 +1,55 @@
- 'use client';
+'use client';
 
- import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
- import type { Category } from '@/lib/types/category';
- import type { PaginatedTransactions } from '@/lib/types/transaction';
- import { getCategories, getCurrentMonthTransactions } from '@/lib/api';
+import { getCategories, getCurrentMonthTransactions } from '@/lib/api';
+import type { Category } from '@/lib/types/category';
+import type { PaginatedTransactions } from '@/lib/types/transaction';
 
- interface TransactionsListProps {
-   refreshKey: number;
- }
+interface TransactionsListProps {
+  refreshKey: number;
+}
 
- export function TransactionsList({ refreshKey }: TransactionsListProps) {
-   const [transactions, setTransactions] = useState<PaginatedTransactions | null>(null);
-   const [categories, setCategories] = useState<Category[]>([]);
-   const [isLoading, setIsLoading] = useState(true);
-   const [error, setError] = useState<string | null>(null);
+export function TransactionsList({ refreshKey }: TransactionsListProps) {
+  const [transactions, setTransactions] = useState<PaginatedTransactions | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-   useEffect(() => {
-     async function fetchTransactionsAndCategories() {
-       try {
-         setIsLoading(true);
-         setError(null);
-         const [transactionsData, categoriesData] = await Promise.all([
-           getCurrentMonthTransactions({
-             page: 1,
-             limit: 20,
-           }),
-           getCategories(),
-         ]);
-         setTransactions(transactionsData);
-         setCategories(categoriesData);
-       } catch (err) {
-         const errorMessage =
-           err instanceof Error ? err.message : 'Failed to load transactions and categories';
-         setError(errorMessage);
-       } finally {
-         setIsLoading(false);
-       }
-     }
+  useEffect(() => {
+    async function fetchTransactionsAndCategories() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const [transactionsData, categoriesData] = await Promise.all([
+          getCurrentMonthTransactions({
+            page: 1,
+            limit: 20,
+          }),
+          getCategories(),
+        ]);
+        setTransactions(transactionsData);
+        setCategories(categoriesData);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to load transactions and categories';
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
-     void fetchTransactionsAndCategories();
-   }, [refreshKey]);
+    void fetchTransactionsAndCategories();
+  }, [refreshKey]);
 
-   const formatDate = (dateString: string): string => {
-     const date = new Date(dateString);
-     return date.toLocaleDateString('en-US', {
-       year: 'numeric',
-       month: 'short',
-       day: 'numeric',
-     });
-   };
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
 
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('fr-FR', {
@@ -84,37 +84,43 @@
       return color;
     }
     const normalizedHex =
-      hex.length === 3 ? hex.split('').map((value) => value + value).join('') : hex;
+      hex.length === 3
+        ? hex
+            .split('')
+            .map((value) => value + value)
+            .join('')
+        : hex;
     const red = Number.parseInt(normalizedHex.slice(0, 2), 16);
     const green = Number.parseInt(normalizedHex.slice(2, 4), 16);
     const blue = Number.parseInt(normalizedHex.slice(4, 6), 16);
     return `rgba(${red}, ${green}, ${blue}, 0.25)`;
   };
 
-   return (
-     <div className="w-full max-w-4xl">
-       <h1 className="mb-8 text-center text-4xl font-bold">Expense Tracker</h1>
-       <div className="mb-6">
-         <h2 className="text-2xl font-semibold">Current Month Transactions</h2>
-       </div>
+  return (
+    <div className="w-full max-w-4xl">
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold">
+          {new Date().toLocaleString('en-US', { month: 'long' })} Transactions
+        </h2>
+      </div>
 
-       {isLoading && (
-         <div className="text-center text-muted-foreground">Loading transactions...</div>
-       )}
+      {isLoading && (
+        <div className="text-center text-muted-foreground">Loading transactions...</div>
+      )}
 
-       {error && (
-         <div className="rounded-md border border-destructive bg-destructive/10 p-4 text-center text-destructive">
-           {error}
-         </div>
-       )}
+      {error && (
+        <div className="rounded-md border border-destructive bg-destructive/10 p-4 text-center text-destructive">
+          {error}
+        </div>
+      )}
 
-       {!isLoading && !error && transactions && (
-         <>
-           {transactions.data.length === 0 ? (
-             <div className="rounded-md border p-4 text-center text-muted-foreground">
-               No transactions found for the current month.
-             </div>
-           ) : (
+      {!isLoading && !error && transactions && (
+        <>
+          {transactions.data.length === 0 ? (
+            <div className="rounded-md border p-4 text-center text-muted-foreground">
+              No transactions found for the current month.
+            </div>
+          ) : (
             <div className="space-y-2">
               {transactions.data.map((transaction) => {
                 const category = findCategoryById(transaction.categoryId, categories);
@@ -154,9 +160,9 @@
                 );
               })}
             </div>
-           )}
-         </>
-       )}
-     </div>
-   );
- }
+          )}
+        </>
+      )}
+    </div>
+  );
+}

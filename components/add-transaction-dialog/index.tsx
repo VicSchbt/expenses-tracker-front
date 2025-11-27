@@ -47,7 +47,7 @@ export function AddTransactionDialog({ onExpenseCreated }: AddTransactionDialogP
 
   return (
     <>
-      <Button onClick={() => setIsDialogOpen(true)} className="fixed right-8 top-8 z-40">
+      <Button onClick={() => setIsDialogOpen(true)} className="z-40">
         <Plus />
         Add Transaction
       </Button>
