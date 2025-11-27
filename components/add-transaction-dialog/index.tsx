@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { TransactionType } from '@/lib/types/transaction';
+
 import { AddExpenseForm } from './add-expense-form';
 
 interface AddTransactionDialogProps {
@@ -100,5 +101,3 @@ export function AddTransactionDialog({ onExpenseCreated }: AddTransactionDialogP
     </>
   );
 }
-
-
