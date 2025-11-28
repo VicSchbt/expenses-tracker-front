@@ -124,37 +124,47 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
             <div className="space-y-2">
               {transactions.data.map((transaction) => {
                 const category = findCategoryById(transaction.categoryId, categories);
+                const isRefund = transaction.type === 'REFUND';
                 return (
                   <div
                     key={transaction.id}
-                    className="flex items-center justify-between rounded-md border bg-card p-4"
+                    className="grid w-full grid-cols-[2fr_1fr_1fr_1fr_1fr] items-center gap-2 rounded-md border bg-card p-4 sm:gap-4"
+                    style={{
+                      gridTemplateAreas: '"label date category positive negative"',
+                    }}
                   >
-                    <div className="flex-1">
-                      <div className="font-medium">{transaction.label}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {formatDate(transaction.date)}
-                        {category && (
-                          <span
-                            className="ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-                            style={{ backgroundColor: getCategoryBackgroundColor(category.color) }}
-                          >
-                            {category.icon && (
-                              <span className="mr-1" aria-hidden="true">
-                                {category.icon}
-                              </span>
-                            )}
-                            {category.label}
-                          </span>
-                        )}
-                      </div>
+                    <div className="truncate font-medium" style={{ gridArea: 'label' }}>
+                      {transaction.label}
+                    </div>
+                    <div className="text-sm text-muted-foreground" style={{ gridArea: 'date' }}>
+                      {formatDate(transaction.date)}
+                    </div>
+                    <div className="flex items-center" style={{ gridArea: 'category' }}>
+                      {category && (
+                        <span
+                          className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={{ backgroundColor: getCategoryBackgroundColor(category.color) }}
+                        >
+                          {category.icon && (
+                            <span className="mr-1" aria-hidden="true">
+                              {category.icon}
+                            </span>
+                          )}
+                          {category.label}
+                        </span>
+                      )}
                     </div>
                     <div
-                      className={`text-lg font-semibold ${
-                        transaction.type === 'REFUND' ? 'text-green-600' : 'text-red-600'
-                      }`}
+                      className="text-right text-lg font-semibold text-green-600"
+                      style={{ gridArea: 'positive' }}
                     >
-                      {transaction.type === 'REFUND' ? '+' : '-'}
-                      {formatCurrency(Math.abs(transaction.value))}
+                      {isRefund && `+${formatCurrency(Math.abs(transaction.value))}`}
+                    </div>
+                    <div
+                      className="text-right text-lg font-semibold text-red-600"
+                      style={{ gridArea: 'negative' }}
+                    >
+                      {!isRefund && `-${formatCurrency(Math.abs(transaction.value))}`}
                     </div>
                   </div>
                 );
