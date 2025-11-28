@@ -1,18 +1,12 @@
 'use client';
 
-import { Pencil, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  EditTransactionDialog,
+  type EditTransactionFormState,
+} from '@/components/transactions/edit-transaction-dialog';
+import { TransactionItem } from '@/components/transactions/transaction-item';
 import { useToast } from '@/hooks/use-toast';
 import {
   deleteTransaction,
@@ -23,16 +17,10 @@ import {
 } from '@/lib/api';
 import type { Category } from '@/lib/types/category';
 import type { PaginatedTransactions } from '@/lib/types/transaction';
+import { formatCurrency, formatDate, getCategoryBackgroundColor } from '@/lib/utils';
 
 interface TransactionsListProps {
   refreshKey: number;
-}
-
-interface EditTransactionFormState {
-  label: string;
-  date: string;
-  value: string;
-  categoryId: string;
 }
 
 export function TransactionsList({ refreshKey }: TransactionsListProps) {
@@ -72,22 +60,6 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
     void fetchTransactionsAndCategories();
   }, [refreshKey]);
 
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const formatCurrency = (value: number): string => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(value);
-  };
-
   const findCategoryById = (
     categoryId: string | null,
     categoriesList: Category[],
@@ -100,30 +72,6 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
       return null;
     }
     return category;
-  };
-
-  const getCategoryBackgroundColor = (color: string | null): string => {
-    if (!color) {
-      return 'rgba(229, 231, 235, 0.25)';
-    }
-    if (!color.startsWith('#')) {
-      return color;
-    }
-    const hex = color.slice(1);
-    if (hex.length !== 3 && hex.length !== 6) {
-      return color;
-    }
-    const normalizedHex =
-      hex.length === 3
-        ? hex
-            .split('')
-            .map((value) => value + value)
-            .join('')
-        : hex;
-    const red = Number.parseInt(normalizedHex.slice(0, 2), 16);
-    const green = Number.parseInt(normalizedHex.slice(2, 4), 16);
-    const blue = Number.parseInt(normalizedHex.slice(4, 6), 16);
-    return `rgba(${red}, ${green}, ${blue}, 0.25)`;
   };
 
   const handleEditClick = (transactionId: string): void => {
@@ -271,157 +219,33 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
             <div className="space-y-2">
               {transactions.data.map((transaction) => {
                 const category = findCategoryById(transaction.categoryId, categories);
-                const isRefund = transaction.type === 'REFUND';
                 return (
-                  <div
+                  <TransactionItem
                     key={transaction.id}
-                    className="grid w-full grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] items-center gap-2 rounded-md border bg-card p-4 sm:gap-4"
-                    style={{
-                      gridTemplateAreas: '"label date category positive negative actions"',
-                    }}
-                  >
-                    <div className="truncate font-medium" style={{ gridArea: 'label' }}>
-                      {transaction.label}
-                    </div>
-                    <div className="text-sm text-muted-foreground" style={{ gridArea: 'date' }}>
-                      {formatDate(transaction.date)}
-                    </div>
-                    <div className="flex items-center" style={{ gridArea: 'category' }}>
-                      {category && (
-                        <span
-                          className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-                          style={{ backgroundColor: getCategoryBackgroundColor(category.color) }}
-                        >
-                          {category.icon && (
-                            <span className="mr-1" aria-hidden="true">
-                              {category.icon}
-                            </span>
-                          )}
-                          {category.label}
-                        </span>
-                      )}
-                    </div>
-                    <div
-                      className="text-right text-lg font-semibold text-green-600"
-                      style={{ gridArea: 'positive' }}
-                    >
-                      {isRefund && `+${formatCurrency(Math.abs(transaction.value))}`}
-                    </div>
-                    <div
-                      className="text-right text-lg font-semibold text-red-600"
-                      style={{ gridArea: 'negative' }}
-                    >
-                      {!isRefund && `-${formatCurrency(Math.abs(transaction.value))}`}
-                    </div>
-                    <div
-                      className="ml-4 flex justify-end gap-2 sm:ml-6"
-                      style={{ gridArea: 'actions' }}
-                    >
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Edit transaction"
-                        onClick={() => handleEditClick(transaction.id)}
-                      >
-                        <Pencil />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Delete transaction"
-                        disabled={deletingTransactionId === transaction.id}
-                        onClick={() => handleDeleteClick(transaction.id)}
-                      >
-                        <Trash2 />
-                      </Button>
-                    </div>
-                  </div>
+                    transaction={transaction}
+                    category={category}
+                    isDeleting={deletingTransactionId === transaction.id}
+                    formatDate={formatDate}
+                    formatCurrency={formatCurrency}
+                    getCategoryBackgroundColor={getCategoryBackgroundColor}
+                    onEdit={handleEditClick}
+                    onDelete={handleDeleteClick}
+                  />
                 );
               })}
             </div>
           )}
         </>
       )}
-      <Dialog
-        open={Boolean(editingTransactionId && editForm)}
-        onOpenChange={(isOpen): void => {
-          if (!isOpen) {
-            handleCancelEdit();
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-[480px]">
-          <DialogHeader>
-            <DialogTitle>Edit transaction</DialogTitle>
-            <DialogDescription>Update the details of your transaction.</DialogDescription>
-          </DialogHeader>
-          {editForm && (
-            <form className="space-y-4" onSubmit={handleSubmitEdit}>
-              <section className="space-y-3 rounded-md border bg-muted/50 p-4">
-                <div className="space-y-1">
-                  <Label htmlFor="edit-transaction-label">Label</Label>
-                  <Input
-                    id="edit-transaction-label"
-                    value={editForm.label}
-                    onChange={(event): void => handleEditFieldChange('label', event.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <Label htmlFor="edit-transaction-date">Date</Label>
-                    <Input
-                      id="edit-transaction-date"
-                      type="date"
-                      value={editForm.date}
-                      onChange={(event): void => handleEditFieldChange('date', event.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="edit-transaction-value">Amount</Label>
-                    <Input
-                      id="edit-transaction-value"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={editForm.value}
-                      onChange={(event): void => handleEditFieldChange('value', event.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="edit-transaction-category">Category (optional)</Label>
-                  <select
-                    id="edit-transaction-category"
-                    className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={editForm.categoryId}
-                    onChange={(event): void =>
-                      handleEditFieldChange('categoryId', event.target.value)
-                    }
-                  >
-                    <option value="">No category</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.icon ? `${category.icon} ${category.label}` : category.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </section>
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={handleCancelEdit}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isUpdatingTransaction}>
-                  {isUpdatingTransaction ? 'Saving...' : 'Save changes'}
-                </Button>
-              </div>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
+      <EditTransactionDialog
+        isOpen={Boolean(editingTransactionId && editForm)}
+        editForm={editForm}
+        categories={categories}
+        isUpdating={isUpdatingTransaction}
+        onClose={handleCancelEdit}
+        onSubmit={handleSubmitEdit}
+        onFieldChange={handleEditFieldChange}
+      />
     </div>
   );
 }
