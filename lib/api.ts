@@ -1,5 +1,5 @@
- import type { Category } from './types/category';
- import type { PaginatedTransactions, Transaction } from './types/transaction';
+import type { Category } from './types/category';
+import type { PaginatedTransactions, Transaction } from './types/transaction';
 
  const API_BASE_URL = '/api';
 
@@ -33,6 +33,18 @@
    icon?: string | null;
    color?: string | null;
  }
+
+type RecurrenceType = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+
+export interface UpdateTransactionRequest {
+  label?: string;
+  date?: string;
+  value?: number;
+  categoryId?: string;
+  recurrence?: RecurrenceType;
+  isPaid?: boolean;
+  dueDate?: string;
+}
 
  interface UpdateCategoryRequest {
    label?: string;
@@ -233,3 +245,46 @@
 
    await handleResponse<{ message: string }>(response);
  }
+
+export async function updateTransaction(
+  id: string,
+  request: UpdateTransactionRequest,
+): Promise<Transaction> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/transactions/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(request),
+  });
+
+  return handleResponse<Transaction>(response);
+}
+
+interface DeleteResponse {
+  message: string;
+}
+
+export async function deleteTransaction(id: string): Promise<DeleteResponse> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/transactions/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<DeleteResponse>(response);
+}
+
