@@ -25,11 +25,13 @@ export function AddIncomeForm({ onCancel, onSuccess }: AddIncomeFormProps) {
     date: string;
     value: string;
     recurrence: string;
+    recurrenceEndDate: string;
   }>({
     label: '',
     date: '',
     value: '',
     recurrence: '',
+    recurrenceEndDate: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -46,6 +48,10 @@ export function AddIncomeForm({ onCancel, onSuccess }: AddIncomeFormProps) {
         recurrence:
           incomeForm.recurrence && incomeForm.recurrence !== ''
             ? (incomeForm.recurrence as 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY')
+            : undefined,
+        recurrenceEndDate:
+          incomeForm.recurrenceEndDate && incomeForm.recurrenceEndDate !== ''
+            ? incomeForm.recurrenceEndDate
             : undefined,
       });
       onSuccess();
@@ -120,6 +126,7 @@ export function AddIncomeForm({ onCancel, onSuccess }: AddIncomeFormProps) {
               setIncomeForm((previous) => ({
                 ...previous,
                 recurrence: event.target.value,
+                ...(event.target.value === '' && { recurrenceEndDate: '' }),
               }))
             }
           >
@@ -134,6 +141,26 @@ export function AddIncomeForm({ onCancel, onSuccess }: AddIncomeFormProps) {
             Select if this income repeats on a regular basis (e.g., monthly salary).
           </p>
         </div>
+        {incomeForm.recurrence && incomeForm.recurrence !== '' && (
+          <div className="space-y-1">
+            <Label htmlFor="income-recurrence-end-date">Recurrence End Date (optional)</Label>
+            <Input
+              id="income-recurrence-end-date"
+              type="date"
+              value={incomeForm.recurrenceEndDate}
+              onChange={(event): void =>
+                setIncomeForm((previous) => ({
+                  ...previous,
+                  recurrenceEndDate: event.target.value,
+                }))
+              }
+              min={incomeForm.date}
+            />
+            <p className="text-xs text-muted-foreground">
+              Optionally set an end date for this recurring income. Leave empty for ongoing recurrence.
+            </p>
+          </div>
+        )}
       </section>
       {submitError && <p className="text-sm text-destructive">{submitError}</p>}
       <div className="flex justify-end gap-2">

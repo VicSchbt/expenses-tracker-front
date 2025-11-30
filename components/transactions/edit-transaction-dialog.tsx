@@ -15,6 +15,7 @@ export interface EditTransactionFormState {
   date: string;
   value: string;
   categoryId: string;
+  recurrenceScope?: 'CURRENT_ONLY' | 'CURRENT_AND_FUTURE' | 'ALL';
 }
 
 interface EditTransactionDialogProps {
@@ -22,16 +23,40 @@ interface EditTransactionDialogProps {
   editForm: EditTransactionFormState | null;
   categories: Category[];
   isUpdating: boolean;
+  hasRecurrence?: boolean;
   onClose: () => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onFieldChange: (fieldName: keyof EditTransactionFormState, value: string) => void;
 }
+
+const RECURRENCE_SCOPE_OPTIONS: Array<{
+  value: 'CURRENT_ONLY' | 'CURRENT_AND_FUTURE' | 'ALL';
+  label: string;
+  description: string;
+}> = [
+  {
+    value: 'CURRENT_ONLY',
+    label: 'This instance only',
+    description: 'Update only this transaction',
+  },
+  {
+    value: 'CURRENT_AND_FUTURE',
+    label: 'This and future instances',
+    description: 'Update this transaction and all future recurring instances',
+  },
+  {
+    value: 'ALL',
+    label: 'All instances',
+    description: 'Update all instances in this recurring series',
+  },
+];
 
 export function EditTransactionDialog({
   isOpen,
   editForm,
   categories,
   isUpdating,
+  hasRecurrence = false,
   onClose,
   onSubmit,
   onFieldChange,
@@ -103,6 +128,39 @@ export function EditTransactionDialog({
                 </select>
               </div>
             </section>
+            {hasRecurrence && (
+              <section className="space-y-3 rounded-md border bg-muted/50 p-4">
+                <div className="space-y-1">
+                  <Label htmlFor="edit-transaction-recurrence-scope">
+                    Update scope (for recurring transactions)
+                  </Label>
+                  <select
+                    id="edit-transaction-recurrence-scope"
+                    className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={editForm.recurrenceScope || 'CURRENT_ONLY'}
+                    onChange={(event): void =>
+                      onFieldChange(
+                        'recurrenceScope',
+                        event.target.value as 'CURRENT_ONLY' | 'CURRENT_AND_FUTURE' | 'ALL',
+                      )
+                    }
+                  >
+                    {RECURRENCE_SCOPE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-muted-foreground">
+                    {
+                      RECURRENCE_SCOPE_OPTIONS.find(
+                        (opt) => opt.value === (editForm.recurrenceScope || 'CURRENT_ONLY'),
+                      )?.description
+                    }
+                  </p>
+                </div>
+              </section>
+            )}
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel

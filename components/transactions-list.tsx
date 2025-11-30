@@ -4,6 +4,7 @@ import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-tabl
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { createColumns } from '@/components/transactions/columns';
+import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
 import {
   EditTransactionDialog,
   type EditTransactionFormState,
@@ -37,6 +38,10 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingTransactionId, setDeletingTransactionId] = useState<string | null>(null);
+  const [deleteTransactionLabel, setDeleteTransactionLabel] = useState<string>('');
+  const [deleteRecurrenceScope, setDeleteRecurrenceScope] = useState<
+    'CURRENT_ONLY' | 'CURRENT_AND_FUTURE' | 'ALL'
+  >('CURRENT_ONLY');
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditTransactionFormState | null>(null);
   const [isUpdatingTransaction, setIsUpdatingTransaction] = useState(false);
@@ -100,6 +105,7 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
         date: formattedDate,
         value: transactionToEdit.value.toString(),
         categoryId: transactionToEdit.categoryId ?? '',
+        recurrenceScope: 'CURRENT_ONLY',
       });
     },
     [transactions],
@@ -132,11 +138,18 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
     }
     try {
       setIsUpdatingTransaction(true);
+      const transactionToEdit = transactions?.data.find(
+        (transaction) => transaction.id === editingTransactionId,
+      );
       const updatePayload: UpdateTransactionRequest = {
         label: editForm.label.trim(),
         date: editForm.date,
         value: Number(editForm.value),
         categoryId: editForm.categoryId || undefined,
+        recurrenceScope:
+          transactionToEdit?.recurrence || transactionToEdit?.parentTransactionId
+            ? editForm.recurrenceScope
+            : undefined,
       };
       const updatedTransaction = await updateTransaction(editingTransactionId, updatePayload);
       setTransactions((currentTransactions) => {
@@ -170,40 +183,59 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
   };
 
   const handleDeleteClick = useCallback(
-    async (transactionId: string): Promise<void> => {
-      try {
-        setDeletingTransactionId(transactionId);
-        const deleteResponse = await deleteTransaction(transactionId);
-        setTransactions((currentTransactions) => {
-          if (!currentTransactions) {
-            return currentTransactions;
-          }
-          const filteredData = currentTransactions.data.filter(
-            (transaction) => transaction.id !== transactionId,
-          );
-          return {
-            ...currentTransactions,
-            data: filteredData,
-          };
-        });
-        toast({
-          title: 'Transaction deleted',
-          description: deleteResponse.message || 'The transaction has been deleted successfully.',
-        });
-      } catch (deleteError) {
-        const errorMessage =
-          deleteError instanceof Error ? deleteError.message : 'Failed to delete transaction';
-        toast({
-          title: 'Error',
-          description: errorMessage,
-          variant: 'destructive',
-        });
-      } finally {
-        setDeletingTransactionId(null);
+    (transactionId: string): void => {
+      const transactionToDelete = transactions?.data.find(
+        (transaction) => transaction.id === transactionId,
+      );
+      if (!transactionToDelete) {
+        return;
       }
+      setDeleteTransactionLabel(transactionToDelete.label);
+      setDeleteRecurrenceScope('CURRENT_ONLY');
+      setDeletingTransactionId(transactionId);
     },
-    [toast],
+    [transactions],
   );
+
+  const handleConfirmDelete = async (): Promise<void> => {
+    if (!deletingTransactionId) {
+      return;
+    }
+    try {
+      const deleteResponse = await deleteTransaction(deletingTransactionId, deleteRecurrenceScope);
+      setTransactions((currentTransactions) => {
+        if (!currentTransactions) {
+          return currentTransactions;
+        }
+        const filteredData = currentTransactions.data.filter(
+          (transaction) => transaction.id !== deletingTransactionId,
+        );
+        return {
+          ...currentTransactions,
+          data: filteredData,
+        };
+      });
+      toast({
+        title: 'Transaction deleted',
+        description: deleteResponse.message || 'The transaction has been deleted successfully.',
+      });
+      setDeletingTransactionId(null);
+      setDeleteTransactionLabel('');
+    } catch (deleteError) {
+      const errorMessage =
+        deleteError instanceof Error ? deleteError.message : 'Failed to delete transaction';
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleCancelDelete = (): void => {
+    setDeletingTransactionId(null);
+    setDeleteTransactionLabel('');
+  };
 
   const tableData = useMemo(() => {
     if (!transactions) {
@@ -300,9 +332,32 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
         editForm={editForm}
         categories={categories}
         isUpdating={isUpdatingTransaction}
+        hasRecurrence={Boolean(
+          transactions?.data.find(
+            (transaction) =>
+              transaction.id === editingTransactionId &&
+              (transaction.recurrence || transaction.parentTransactionId),
+          ),
+        )}
         onClose={handleCancelEdit}
         onSubmit={handleSubmitEdit}
         onFieldChange={handleEditFieldChange}
+      />
+      <DeleteTransactionDialog
+        isOpen={Boolean(deletingTransactionId)}
+        transactionLabel={deleteTransactionLabel}
+        hasRecurrence={Boolean(
+          transactions?.data.find(
+            (transaction) =>
+              transaction.id === deletingTransactionId &&
+              (transaction.recurrence || transaction.parentTransactionId),
+          ),
+        )}
+        recurrenceScope={deleteRecurrenceScope}
+        isDeleting={false}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        onRecurrenceScopeChange={setDeleteRecurrenceScope}
       />
     </div>
   );

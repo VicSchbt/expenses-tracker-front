@@ -33,6 +33,7 @@ interface CreateIncomeRequest {
   date: string;
   value: number;
   recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  recurrenceEndDate?: string;
 }
 
 interface CreateCategoryRequest {
@@ -42,6 +43,7 @@ interface CreateCategoryRequest {
 }
 
 type RecurrenceType = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+type RecurrenceScope = 'CURRENT_ONLY' | 'CURRENT_AND_FUTURE' | 'ALL';
 
 export interface UpdateTransactionRequest {
   label?: string;
@@ -49,6 +51,8 @@ export interface UpdateTransactionRequest {
   value?: number;
   categoryId?: string;
   recurrence?: RecurrenceType;
+  recurrenceEndDate?: string;
+  recurrenceScope?: RecurrenceScope;
   isPaid?: boolean;
   dueDate?: string;
 }
@@ -374,13 +378,24 @@ interface DeleteResponse {
   message: string;
 }
 
-export async function deleteTransaction(id: string): Promise<DeleteResponse> {
+export async function deleteTransaction(
+  id: string,
+  recurrenceScope?: 'CURRENT_ONLY' | 'CURRENT_AND_FUTURE' | 'ALL',
+): Promise<DeleteResponse> {
   const token = getAuthToken();
   if (!token) {
     throw new Error('Authentication required');
   }
 
-  const response = await fetch(`${API_BASE_URL}/transactions/${id}`, {
+  const searchParams = new URLSearchParams();
+  if (recurrenceScope) {
+    searchParams.append('recurrenceScope', recurrenceScope);
+  }
+
+  const queryString = searchParams.toString();
+  const url = `${API_BASE_URL}/transactions/${id}${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(url, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',

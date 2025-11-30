@@ -42,7 +42,18 @@ export async function DELETE(request: NextRequest, context: RouteParams) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const url = `${API_BASE_URL}/transactions/${context.params.id}`;
+    const searchParams = request.nextUrl.searchParams;
+    const recurrenceScope = searchParams.get('recurrenceScope');
+
+    const queryParams = new URLSearchParams();
+    if (recurrenceScope) {
+      queryParams.append('recurrenceScope', recurrenceScope);
+    }
+
+    const queryString = queryParams.toString();
+    const url = `${API_BASE_URL}/transactions/${context.params.id}${
+      queryString ? `?${queryString}` : ''
+    }`;
 
     const response = await fetch(url, {
       method: 'DELETE',
