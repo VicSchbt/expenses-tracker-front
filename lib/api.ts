@@ -21,18 +21,25 @@ import type { PaginatedTransactions, Transaction } from './types/transaction';
    statusCode: number;
  }
 
- interface CreateExpenseRequest {
-   label: string;
-   date: string;
-   value: number;
-   categoryId?: string;
- }
+interface CreateExpenseRequest {
+  label: string;
+  date: string;
+  value: number;
+  categoryId?: string;
+}
 
- interface CreateCategoryRequest {
-   label: string;
-   icon?: string | null;
-   color?: string | null;
- }
+interface CreateIncomeRequest {
+  label: string;
+  date: string;
+  value: number;
+  recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+}
+
+interface CreateCategoryRequest {
+  label: string;
+  icon?: string | null;
+  color?: string | null;
+}
 
 type RecurrenceType = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
 
@@ -136,42 +143,138 @@ export interface UpdateTransactionRequest {
    return handleResponse<Transaction>(response);
  }
 
- interface GetCurrentMonthTransactionsParams {
-   page?: number;
-   limit?: number;
- }
-
- export async function getCurrentMonthTransactions(
-   params?: GetCurrentMonthTransactionsParams,
- ): Promise<PaginatedTransactions> {
+ export async function createIncome(request: CreateIncomeRequest): Promise<Transaction> {
    const token = getAuthToken();
    if (!token) {
      throw new Error('Authentication required');
    }
 
-   const searchParams = new URLSearchParams();
-   if (params?.page) {
-     searchParams.append('page', params.page.toString());
-   }
-   if (params?.limit) {
-     searchParams.append('limit', params.limit.toString());
-   }
-
-   const queryString = searchParams.toString();
-   const url = `${API_BASE_URL}/transactions/expenses-refunds/current-month${
-     queryString ? `?${queryString}` : ''
-   }`;
-
-   const response = await fetch(url, {
-     method: 'GET',
+   const response = await fetch(`${API_BASE_URL}/transactions/income`, {
+     method: 'POST',
      headers: {
        'Content-Type': 'application/json',
        Authorization: `Bearer ${token}`,
      },
+     body: JSON.stringify(request),
    });
 
-   return handleResponse<PaginatedTransactions>(response);
+   return handleResponse<Transaction>(response);
  }
+
+interface GetCurrentMonthTransactionsParams {
+  page?: number;
+  limit?: number;
+}
+
+export async function getCurrentMonthTransactions(
+  params?: GetCurrentMonthTransactionsParams,
+): Promise<PaginatedTransactions> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const searchParams = new URLSearchParams();
+  if (params?.page) {
+    searchParams.append('page', params.page.toString());
+  }
+  if (params?.limit) {
+    searchParams.append('limit', params.limit.toString());
+  }
+
+  const queryString = searchParams.toString();
+  const url = `${API_BASE_URL}/transactions/expenses-refunds/current-month${
+    queryString ? `?${queryString}` : ''
+  }`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<PaginatedTransactions>(response);
+}
+
+interface GetIncomeParams {
+  page?: number;
+  limit?: number;
+  year?: number;
+  month?: number;
+}
+
+export async function getIncome(params?: GetIncomeParams): Promise<PaginatedTransactions> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const searchParams = new URLSearchParams();
+  if (params?.page) {
+    searchParams.append('page', params.page.toString());
+  }
+  if (params?.limit) {
+    searchParams.append('limit', params.limit.toString());
+  }
+  if (params?.year) {
+    searchParams.append('year', params.year.toString());
+  }
+  if (params?.month) {
+    searchParams.append('month', params.month.toString());
+  }
+
+  const queryString = searchParams.toString();
+  const url = `${API_BASE_URL}/transactions/income${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<PaginatedTransactions>(response);
+}
+
+interface GetCurrentMonthIncomeParams {
+  page?: number;
+  limit?: number;
+}
+
+export async function getCurrentMonthIncome(
+  params?: GetCurrentMonthIncomeParams,
+): Promise<PaginatedTransactions> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const searchParams = new URLSearchParams();
+  if (params?.page) {
+    searchParams.append('page', params.page.toString());
+  }
+  if (params?.limit) {
+    searchParams.append('limit', params.limit.toString());
+  }
+
+  const queryString = searchParams.toString();
+  const url = `${API_BASE_URL}/transactions/income/current-month${
+    queryString ? `?${queryString}` : ''
+  }`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<PaginatedTransactions>(response);
+}
 
  export async function getCategories(): Promise<Category[]> {
    const token = getAuthToken();

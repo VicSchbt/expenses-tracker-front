@@ -15,6 +15,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { TransactionType } from '@/lib/types/transaction';
 
 import { AddExpenseForm } from './add-expense-form';
+import { AddIncomeForm } from './add-income-form';
 
 interface AddTransactionDialogProps {
   onExpenseCreated: () => void;
@@ -88,13 +89,24 @@ export function AddTransactionDialog({ onExpenseCreated }: AddTransactionDialogP
                 }}
               />
             )}
-            {selectedTransactionType && selectedTransactionType !== 'EXPENSE' && (
-              <div className="rounded-md border bg-muted/50 p-4">
-                <p className="text-sm text-muted-foreground">
-                  Form for {selectedTransactionType.toLowerCase()} transaction will appear here.
-                </p>
-              </div>
+            {selectedTransactionType === 'INCOME' && (
+              <AddIncomeForm
+                onCancel={(): void => handleDialogOpenChange(false)}
+                onSuccess={(): void => {
+                  onExpenseCreated();
+                  handleDialogOpenChange(false);
+                }}
+              />
             )}
+            {selectedTransactionType &&
+              selectedTransactionType !== 'EXPENSE' &&
+              selectedTransactionType !== 'INCOME' && (
+                <div className="rounded-md border bg-muted/50 p-4">
+                  <p className="text-sm text-muted-foreground">
+                    Form for {selectedTransactionType.toLowerCase()} transaction will appear here.
+                  </p>
+                </div>
+              )}
           </section>
         </DialogContent>
       </Dialog>
