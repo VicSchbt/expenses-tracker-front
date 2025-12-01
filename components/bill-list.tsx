@@ -4,11 +4,11 @@ import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-tabl
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { createBillColumns } from '@/components/transactions/bill-columns';
+import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
 import {
   EditTransactionDialog,
   type EditTransactionFormState,
 } from '@/components/transactions/edit-transaction-dialog';
-import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
 import {
   Table,
   TableBody,
@@ -130,9 +130,10 @@ export function BillList({ refreshKey }: BillListProps) {
         date: editForm.date,
         value: Number(editForm.value),
         categoryId: editForm.categoryId || undefined,
-        recurrenceScope: transactionToEdit?.recurrence || transactionToEdit?.parentTransactionId
-          ? editForm.recurrenceScope
-          : undefined,
+        recurrenceScope:
+          transactionToEdit?.recurrence || transactionToEdit?.parentTransactionId
+            ? editForm.recurrenceScope
+            : undefined,
       };
       const updatedTransaction = await updateTransaction(editingTransactionId, updatePayload);
       setBills((currentBills) => {
@@ -246,14 +247,10 @@ export function BillList({ refreshKey }: BillListProps) {
   return (
     <div className="w-full max-w-4xl">
       <div className="mb-6">
-        <h2 className="text-2xl font-semibold">
-          {new Date().toLocaleString('en-US', { month: 'long' })} Bills
-        </h2>
+        <h2 className="text-2xl font-semibold">Bills</h2>
       </div>
 
-      {isLoading && (
-        <div className="text-center text-muted-foreground">Loading bills...</div>
-      )}
+      {isLoading && <div className="text-center text-muted-foreground">Loading bills...</div>}
 
       {error && (
         <div className="rounded-md border border-destructive bg-destructive/10 p-4 text-center text-destructive">
@@ -312,15 +309,13 @@ export function BillList({ refreshKey }: BillListProps) {
         editForm={editForm}
         categories={categories}
         isUpdating={isUpdatingTransaction}
-        hasRecurrence={
-          Boolean(
-            bills?.data.find(
-              (transaction) =>
-                transaction.id === editingTransactionId &&
-                (transaction.recurrence || transaction.parentTransactionId),
-            ),
-          )
-        }
+        hasRecurrence={Boolean(
+          bills?.data.find(
+            (transaction) =>
+              transaction.id === editingTransactionId &&
+              (transaction.recurrence || transaction.parentTransactionId),
+          ),
+        )}
         onClose={handleCancelEdit}
         onSubmit={handleSubmitEdit}
         onFieldChange={handleEditFieldChange}
@@ -328,15 +323,13 @@ export function BillList({ refreshKey }: BillListProps) {
       <DeleteTransactionDialog
         isOpen={Boolean(deletingTransactionId)}
         transactionLabel={deleteTransactionLabel}
-        hasRecurrence={
-          Boolean(
-            bills?.data.find(
-              (transaction) =>
-                transaction.id === deletingTransactionId &&
-                (transaction.recurrence || transaction.parentTransactionId),
-            ),
-          )
-        }
+        hasRecurrence={Boolean(
+          bills?.data.find(
+            (transaction) =>
+              transaction.id === deletingTransactionId &&
+              (transaction.recurrence || transaction.parentTransactionId),
+          ),
+        )}
         recurrenceScope={deleteRecurrenceScope}
         isDeleting={false}
         onClose={handleCancelDelete}
@@ -346,4 +339,3 @@ export function BillList({ refreshKey }: BillListProps) {
     </div>
   );
 }
-

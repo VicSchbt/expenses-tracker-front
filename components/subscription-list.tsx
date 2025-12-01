@@ -3,12 +3,12 @@
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { createSubscriptionColumns } from '@/components/transactions/subscription-columns';
+import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
 import {
   EditTransactionDialog,
   type EditTransactionFormState,
 } from '@/components/transactions/edit-transaction-dialog';
-import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
+import { createSubscriptionColumns } from '@/components/transactions/subscription-columns';
 import {
   Table,
   TableBody,
@@ -132,9 +132,10 @@ export function SubscriptionList({ refreshKey }: SubscriptionListProps) {
         date: editForm.date,
         value: Number(editForm.value),
         categoryId: editForm.categoryId || undefined,
-        recurrenceScope: transactionToEdit?.recurrence || transactionToEdit?.parentTransactionId
-          ? editForm.recurrenceScope
-          : undefined,
+        recurrenceScope:
+          transactionToEdit?.recurrence || transactionToEdit?.parentTransactionId
+            ? editForm.recurrenceScope
+            : undefined,
       };
       const updatedTransaction = await updateTransaction(editingTransactionId, updatePayload);
       setSubscriptions((currentSubscriptions) => {
@@ -248,9 +249,7 @@ export function SubscriptionList({ refreshKey }: SubscriptionListProps) {
   return (
     <div className="w-full max-w-4xl">
       <div className="mb-6">
-        <h2 className="text-2xl font-semibold">
-          {new Date().toLocaleString('en-US', { month: 'long' })} Subscriptions
-        </h2>
+        <h2 className="text-2xl font-semibold">Subscriptions</h2>
       </div>
 
       {isLoading && (
@@ -314,15 +313,13 @@ export function SubscriptionList({ refreshKey }: SubscriptionListProps) {
         editForm={editForm}
         categories={categories}
         isUpdating={isUpdatingTransaction}
-        hasRecurrence={
-          Boolean(
-            subscriptions?.data.find(
-              (transaction) =>
-                transaction.id === editingTransactionId &&
-                (transaction.recurrence || transaction.parentTransactionId),
-            ),
-          )
-        }
+        hasRecurrence={Boolean(
+          subscriptions?.data.find(
+            (transaction) =>
+              transaction.id === editingTransactionId &&
+              (transaction.recurrence || transaction.parentTransactionId),
+          ),
+        )}
         onClose={handleCancelEdit}
         onSubmit={handleSubmitEdit}
         onFieldChange={handleEditFieldChange}
@@ -330,15 +327,13 @@ export function SubscriptionList({ refreshKey }: SubscriptionListProps) {
       <DeleteTransactionDialog
         isOpen={Boolean(deletingTransactionId)}
         transactionLabel={deleteTransactionLabel}
-        hasRecurrence={
-          Boolean(
-            subscriptions?.data.find(
-              (transaction) =>
-                transaction.id === deletingTransactionId &&
-                (transaction.recurrence || transaction.parentTransactionId),
-            ),
-          )
-        }
+        hasRecurrence={Boolean(
+          subscriptions?.data.find(
+            (transaction) =>
+              transaction.id === deletingTransactionId &&
+              (transaction.recurrence || transaction.parentTransactionId),
+          ),
+        )}
         recurrenceScope={deleteRecurrenceScope}
         isDeleting={false}
         onClose={handleCancelDelete}
@@ -348,4 +343,3 @@ export function SubscriptionList({ refreshKey }: SubscriptionListProps) {
     </div>
   );
 }
-

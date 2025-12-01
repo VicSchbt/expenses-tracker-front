@@ -266,9 +266,7 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
   return (
     <div className="w-full max-w-4xl">
       <div className="mb-6">
-        <h2 className="text-2xl font-semibold">
-          {new Date().toLocaleString('en-US', { month: 'long' })} Transactions
-        </h2>
+        <h2 className="text-2xl font-semibold">Transactions</h2>
       </div>
 
       {isLoading && (
