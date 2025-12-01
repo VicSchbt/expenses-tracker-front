@@ -14,8 +14,10 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { TransactionType } from '@/lib/types/transaction';
 
+import { AddBillForm } from './add-bill-form';
 import { AddExpenseForm } from './add-expense-form';
 import { AddIncomeForm } from './add-income-form';
+import { AddSubscriptionForm } from './add-subscription-form';
 
 interface AddTransactionDialogProps {
   onExpenseCreated: () => void;
@@ -98,9 +100,29 @@ export function AddTransactionDialog({ onExpenseCreated }: AddTransactionDialogP
                 }}
               />
             )}
+            {selectedTransactionType === 'BILL' && (
+              <AddBillForm
+                onCancel={(): void => handleDialogOpenChange(false)}
+                onSuccess={(): void => {
+                  onExpenseCreated();
+                  handleDialogOpenChange(false);
+                }}
+              />
+            )}
+            {selectedTransactionType === 'SUBSCRIPTION' && (
+              <AddSubscriptionForm
+                onCancel={(): void => handleDialogOpenChange(false)}
+                onSuccess={(): void => {
+                  onExpenseCreated();
+                  handleDialogOpenChange(false);
+                }}
+              />
+            )}
             {selectedTransactionType &&
               selectedTransactionType !== 'EXPENSE' &&
-              selectedTransactionType !== 'INCOME' && (
+              selectedTransactionType !== 'INCOME' &&
+              selectedTransactionType !== 'BILL' &&
+              selectedTransactionType !== 'SUBSCRIPTION' && (
                 <div className="rounded-md border bg-muted/50 p-4">
                   <p className="text-sm text-muted-foreground">
                     Form for {selectedTransactionType.toLowerCase()} transaction will appear here.

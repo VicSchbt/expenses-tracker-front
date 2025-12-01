@@ -36,6 +36,22 @@ interface CreateIncomeRequest {
   recurrenceEndDate?: string;
 }
 
+interface CreateBillRequest {
+  label: string;
+  date: string;
+  value: number;
+  recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  recurrenceEndDate?: string;
+}
+
+interface CreateSubscriptionRequest {
+  label: string;
+  date: string;
+  value: number;
+  recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  recurrenceEndDate?: string;
+}
+
 interface CreateCategoryRequest {
   label: string;
   icon?: string | null;
@@ -154,6 +170,42 @@ export async function createIncome(request: CreateIncomeRequest): Promise<Transa
   }
 
   const response = await fetch(`${API_BASE_URL}/transactions/income`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(request),
+  });
+
+  return handleResponse<Transaction>(response);
+}
+
+export async function createBill(request: CreateBillRequest): Promise<Transaction> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/transactions/bill`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(request),
+  });
+
+  return handleResponse<Transaction>(response);
+}
+
+export async function createSubscription(request: CreateSubscriptionRequest): Promise<Transaction> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/transactions/subscription`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
