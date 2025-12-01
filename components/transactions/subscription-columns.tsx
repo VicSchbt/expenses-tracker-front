@@ -34,17 +34,6 @@ export function createSubscriptionColumns({
       },
     },
     {
-      accessorKey: 'dueDate',
-      header: 'Due Date',
-      cell: ({ row }) => {
-        const dueDate = row.original.dueDate;
-        if (!dueDate) {
-          return <div className="text-muted-foreground">-</div>;
-        }
-        return <div className="text-muted-foreground">{formatDate(dueDate)}</div>;
-      },
-    },
-    {
       accessorKey: 'isPaid',
       header: 'Status',
       cell: ({ row }) => {
@@ -61,21 +50,6 @@ export function createSubscriptionColumns({
             }`}
           >
             {isPaid ? 'Paid' : 'Unpaid'}
-          </span>
-        );
-      },
-    },
-    {
-      accessorKey: 'recurrence',
-      header: 'Recurrence',
-      cell: ({ row }) => {
-        const recurrence = row.original.recurrence;
-        if (!recurrence) {
-          return null;
-        }
-        return (
-          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-muted">
-            {String(recurrence)}
           </span>
         );
       },

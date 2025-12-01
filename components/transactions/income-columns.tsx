@@ -34,21 +34,6 @@ export function createIncomeColumns({
       },
     },
     {
-      accessorKey: 'recurrence',
-      header: 'Recurrence',
-      cell: ({ row }) => {
-        const recurrence = row.original.recurrence;
-        if (!recurrence) {
-          return null;
-        }
-        return (
-          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-muted">
-            {String(recurrence)}
-          </span>
-        );
-      },
-    },
-    {
       accessorKey: 'value',
       header: () => <div className="text-right">Amount</div>,
       cell: ({ row }) => {
