@@ -7,14 +7,23 @@ import { AppNavbar } from '@/components/app-navbar';
 import { AuthGuard } from '@/components/auth-guard';
 import { BillList } from '@/components/bill-list';
 import { IncomeList } from '@/components/income-list';
+import { MonthTabs } from '@/components/month-tabs';
 import { SubscriptionList } from '@/components/subscription-list';
 import { TransactionsList } from '@/components/transactions-list';
+import type { MonthFilter } from '@/lib/types/month-filter';
 
 export default function Home() {
   const [transactionsRefreshKey, setTransactionsRefreshKey] = useState(0);
   const [incomeRefreshKey, setIncomeRefreshKey] = useState(0);
   const [billsRefreshKey, setBillsRefreshKey] = useState(0);
   const [subscriptionsRefreshKey, setSubscriptionsRefreshKey] = useState(0);
+  const [monthFilter, setMonthFilter] = useState<MonthFilter>(() => {
+    const currentDate = new Date();
+    return {
+      year: currentDate.getFullYear(),
+      month: currentDate.getMonth() + 1,
+    };
+  });
 
   const handleTransactionCreated = (): void => {
     setTransactionsRefreshKey((previousRefreshKey) => previousRefreshKey + 1);
@@ -32,14 +41,15 @@ export default function Home() {
             <h1 className="text-center text-4xl font-bold">Expense Tracker</h1>
             <AddTransactionDialog onExpenseCreated={handleTransactionCreated} />
           </div>
+          <MonthTabs monthFilter={monthFilter} onMonthFilterChange={setMonthFilter} />
           <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_2fr] lg:grid-cols-[1fr_2fr]">
             <div className="flex flex-col gap-12">
-              <IncomeList refreshKey={incomeRefreshKey} />
-              <BillList refreshKey={billsRefreshKey} />
-              <SubscriptionList refreshKey={subscriptionsRefreshKey} />
+              <IncomeList refreshKey={incomeRefreshKey} monthFilter={monthFilter} />
+              <BillList refreshKey={billsRefreshKey} monthFilter={monthFilter} />
+              <SubscriptionList refreshKey={subscriptionsRefreshKey} monthFilter={monthFilter} />
             </div>
             <div>
-              <TransactionsList refreshKey={transactionsRefreshKey} />
+              <TransactionsList refreshKey={transactionsRefreshKey} monthFilter={monthFilter} />
             </div>
           </div>
         </main>

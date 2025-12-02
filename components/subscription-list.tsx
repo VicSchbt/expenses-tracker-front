@@ -21,18 +21,20 @@ import { useToast } from '@/hooks/use-toast';
 import {
   deleteTransaction,
   getCategories,
-  getCurrentMonthSubscriptions,
+  getSubscriptions,
   updateTransaction,
   type UpdateTransactionRequest,
 } from '@/lib/api';
+import type { MonthFilter } from '@/lib/types/month-filter';
 import type { Category } from '@/lib/types/category';
 import type { PaginatedTransactions, Transaction } from '@/lib/types/transaction';
 
 interface SubscriptionListProps {
   refreshKey: number;
+  monthFilter: MonthFilter;
 }
 
-export function SubscriptionList({ refreshKey }: SubscriptionListProps) {
+export function SubscriptionList({ refreshKey, monthFilter }: SubscriptionListProps) {
   const [subscriptions, setSubscriptions] = useState<PaginatedTransactions | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,9 +55,11 @@ export function SubscriptionList({ refreshKey }: SubscriptionListProps) {
         setIsLoading(true);
         setError(null);
         const [subscriptionsData, categoriesData] = await Promise.all([
-          getCurrentMonthSubscriptions({
+          getSubscriptions({
             page: 1,
             limit: 20,
+            year: monthFilter.year,
+            month: monthFilter.month,
           }),
           getCategories(),
         ]);
@@ -69,9 +73,8 @@ export function SubscriptionList({ refreshKey }: SubscriptionListProps) {
         setIsLoading(false);
       }
     }
-
     void fetchSubscriptionsAndCategories();
-  }, [refreshKey]);
+  }, [refreshKey, monthFilter.year, monthFilter.month]);
 
   const handleEditClick = useCallback(
     (transactionId: string): void => {
@@ -266,7 +269,7 @@ export function SubscriptionList({ refreshKey }: SubscriptionListProps) {
         <>
           {subscriptions.data.length === 0 ? (
             <div className="rounded-md border p-4 text-center text-muted-foreground">
-              No subscriptions found for the current month.
+              No subscriptions found for the selected month.
             </div>
           ) : (
             <div className="rounded-md border">

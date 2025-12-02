@@ -21,18 +21,20 @@ import { useToast } from '@/hooks/use-toast';
 import {
   deleteTransaction,
   getCategories,
-  getCurrentMonthIncome,
+  getIncome,
   updateTransaction,
   type UpdateTransactionRequest,
 } from '@/lib/api';
+import type { MonthFilter } from '@/lib/types/month-filter';
 import type { Category } from '@/lib/types/category';
 import type { PaginatedTransactions, Transaction } from '@/lib/types/transaction';
 
 interface IncomeListProps {
   refreshKey: number;
+  monthFilter: MonthFilter;
 }
 
-export function IncomeList({ refreshKey }: IncomeListProps) {
+export function IncomeList({ refreshKey, monthFilter }: IncomeListProps) {
   const [income, setIncome] = useState<PaginatedTransactions | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,9 +55,11 @@ export function IncomeList({ refreshKey }: IncomeListProps) {
         setIsLoading(true);
         setError(null);
         const [incomeData, categoriesData] = await Promise.all([
-          getCurrentMonthIncome({
+          getIncome({
             page: 1,
             limit: 20,
+            year: monthFilter.year,
+            month: monthFilter.month,
           }),
           getCategories(),
         ]);
@@ -69,9 +73,8 @@ export function IncomeList({ refreshKey }: IncomeListProps) {
         setIsLoading(false);
       }
     }
-
     void fetchIncomeAndCategories();
-  }, [refreshKey]);
+  }, [refreshKey, monthFilter.year, monthFilter.month]);
 
   const handleEditClick = useCallback(
     (transactionId: string): void => {
@@ -262,7 +265,7 @@ export function IncomeList({ refreshKey }: IncomeListProps) {
         <>
           {income.data.length === 0 ? (
             <div className="rounded-md border p-4 text-center text-muted-foreground">
-              No income found for the current month.
+              No income found for the selected month.
             </div>
           ) : (
             <div className="rounded-md border">

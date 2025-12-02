@@ -26,13 +26,15 @@ import {
   type UpdateTransactionRequest,
 } from '@/lib/api';
 import type { Category } from '@/lib/types/category';
+import type { MonthFilter } from '@/lib/types/month-filter';
 import type { PaginatedTransactions, Transaction } from '@/lib/types/transaction';
 
 interface TransactionsListProps {
   refreshKey: number;
+  monthFilter: MonthFilter;
 }
 
-export function TransactionsList({ refreshKey }: TransactionsListProps) {
+export function TransactionsList({ refreshKey, monthFilter }: TransactionsListProps) {
   const [transactions, setTransactions] = useState<PaginatedTransactions | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,7 +71,6 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
         setIsLoading(false);
       }
     }
-
     void fetchTransactionsAndCategories();
   }, [refreshKey]);
 
@@ -264,7 +265,7 @@ export function TransactionsList({ refreshKey }: TransactionsListProps) {
   });
 
   return (
-    <div className="w-full max-w-4xl">
+    <div className="w-full">
       <div className="mb-6">
         <h2 className="text-2xl font-semibold">Transactions</h2>
       </div>
