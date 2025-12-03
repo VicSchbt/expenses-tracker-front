@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { AddTransactionDialog } from '@/components/add-transaction-dialog/index';
 import { AppNavbar } from '@/components/app-navbar';
@@ -10,7 +10,9 @@ import { IncomeList } from '@/components/income-list';
 import { MonthTabs } from '@/components/month-tabs';
 import { SubscriptionList } from '@/components/subscription-list';
 import { TransactionsList } from '@/components/transactions-list';
+import { getAvailableMonths } from '@/lib/api';
 import type { MonthFilter } from '@/lib/types/month-filter';
+import { useUserStore } from '@/stores/use-user-store';
 
 export default function Home() {
   const [transactionsRefreshKey, setTransactionsRefreshKey] = useState(0);
@@ -24,6 +26,34 @@ export default function Home() {
       month: currentDate.getMonth() + 1,
     };
   });
+  const isAvailableMonthsInitialized = useUserStore((state) => state.isAvailableMonthsInitialized);
+  const setAvailableMonths = useUserStore((state) => state.setAvailableMonths);
+  const setIsAvailableMonthsInitialized = useUserStore(
+    (state) => state.setIsAvailableMonthsInitialized,
+  );
+
+  useEffect(() => {
+    if (isAvailableMonthsInitialized) {
+      return;
+    }
+    const executeFetchAvailableMonths = async () => {
+      try {
+        const months = await getAvailableMonths();
+        setAvailableMonths(months);
+        if (months.length > 0) {
+          const firstMonth = months[0];
+          setMonthFilter({
+            year: firstMonth.year,
+            month: firstMonth.month,
+          });
+        }
+        setIsAvailableMonthsInitialized(true);
+      } catch {
+        // Intentionally ignore error here, auth guard will handle auth issues.
+      }
+    };
+    void executeFetchAvailableMonths();
+  }, [isAvailableMonthsInitialized, setAvailableMonths, setIsAvailableMonthsInitialized]);
 
   const handleTransactionCreated = (): void => {
     setTransactionsRefreshKey((previousRefreshKey) => previousRefreshKey + 1);

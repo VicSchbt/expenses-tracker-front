@@ -1,4 +1,5 @@
 import type { Category } from './types/category';
+import type { MonthFilter } from './types/month-filter';
 import type { PaginatedTransactions, Transaction } from './types/transaction';
 
 const API_BASE_URL = '/api';
@@ -657,4 +658,21 @@ export async function deleteTransaction(
   });
 
   return handleResponse<DeleteResponse>(response);
+}
+
+export async function getAvailableMonths(): Promise<MonthFilter[]> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/transactions/available-months`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<MonthFilter[]>(response);
 }
