@@ -14,7 +14,8 @@ interface MonthOption extends MonthFilter {
   value: string;
 }
 
-const MAX_MONTH_COUNT = 6;
+const PAST_MONTH_COUNT = 3;
+const FUTURE_MONTH_COUNT = 3;
 
 function formatMonthValue(year: number, month: number): string {
   const monthString = month.toString().padStart(2, '0');
@@ -23,19 +24,33 @@ function formatMonthValue(year: number, month: number): string {
 
 function createMonthOptions(months: MonthFilter[]): MonthOption[] {
   const currentDate = new Date();
-  const currentKey = currentDate.getFullYear() * 12 + currentDate.getMonth();
-  const minKey = currentKey - (MAX_MONTH_COUNT - 1);
-  const filteredMonths = months
-    .filter((month) => {
-      const monthKey = month.year * 12 + (month.month - 1);
-      return monthKey <= currentKey && monthKey >= minKey;
-    })
-    .sort((firstMonth, secondMonth) => {
-      const firstKey = firstMonth.year * 12 + (firstMonth.month - 1);
-      const secondKey = secondMonth.year * 12 + (secondMonth.month - 1);
-      return secondKey - firstKey;
+  const currentYear = currentDate.getFullYear();
+  const currentMonthIndex = currentDate.getMonth();
+  const availableMonthKeys = new Set(
+    months.map((month) => month.year * 12 + (month.month - 1)),
+  );
+  const windowMonths: MonthFilter[] = [];
+  for (let offset = -PAST_MONTH_COUNT; offset <= FUTURE_MONTH_COUNT; offset += 1) {
+    const date = new Date(currentYear, currentMonthIndex + offset, 1);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const monthKey = year * 12 + date.getMonth();
+    if (offset < 0 && !availableMonthKeys.has(monthKey)) {
+      continue;
+    }
+    const exists = windowMonths.some((existingMonth) => {
+      return existingMonth.year === year && existingMonth.month === month;
     });
-  return filteredMonths.map((month) => {
+    if (!exists) {
+      windowMonths.push({ year, month });
+    }
+  }
+  windowMonths.sort((firstMonth, secondMonth) => {
+    const firstKey = firstMonth.year * 12 + (firstMonth.month - 1);
+    const secondKey = secondMonth.year * 12 + (secondMonth.month - 1);
+    return firstKey - secondKey;
+  });
+  return windowMonths.map((month) => {
     const date = new Date(month.year, month.month - 1, 1);
     const label = date.toLocaleDateString('en-US', {
       month: 'long',
