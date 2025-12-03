@@ -254,6 +254,49 @@ export async function getCurrentMonthTransactions(
   return handleResponse<PaginatedTransactions>(response);
 }
 
+interface GetExpensesAndRefundsParams {
+  page?: number;
+  limit?: number;
+  year?: number;
+  month?: number;
+}
+
+export async function getExpensesAndRefunds(
+  params?: GetExpensesAndRefundsParams,
+): Promise<PaginatedTransactions> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const searchParams = new URLSearchParams();
+  if (params?.page) {
+    searchParams.append('page', params.page.toString());
+  }
+  if (params?.limit) {
+    searchParams.append('limit', params.limit.toString());
+  }
+  if (params?.year) {
+    searchParams.append('year', params.year.toString());
+  }
+  if (params?.month) {
+    searchParams.append('month', params.month.toString());
+  }
+
+  const queryString = searchParams.toString();
+  const url = `${API_BASE_URL}/transactions/expenses-refunds${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<PaginatedTransactions>(response);
+}
+
 interface GetIncomeParams {
   page?: number;
   limit?: number;

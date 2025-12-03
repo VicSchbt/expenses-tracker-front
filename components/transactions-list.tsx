@@ -21,7 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import {
   deleteTransaction,
   getCategories,
-  getCurrentMonthTransactions,
+  getExpensesAndRefunds,
   updateTransaction,
   type UpdateTransactionRequest,
 } from '@/lib/api';
@@ -55,9 +55,11 @@ export function TransactionsList({ refreshKey, monthFilter }: TransactionsListPr
         setIsLoading(true);
         setError(null);
         const [transactionsData, categoriesData] = await Promise.all([
-          getCurrentMonthTransactions({
+          getExpensesAndRefunds({
             page: 1,
             limit: 20,
+            year: monthFilter.year,
+            month: monthFilter.month,
           }),
           getCategories(),
         ]);
@@ -72,7 +74,7 @@ export function TransactionsList({ refreshKey, monthFilter }: TransactionsListPr
       }
     }
     void fetchTransactionsAndCategories();
-  }, [refreshKey]);
+  }, [refreshKey, monthFilter.year, monthFilter.month]);
 
   const findCategoryById = (
     categoryId: string | null,
@@ -284,7 +286,7 @@ export function TransactionsList({ refreshKey, monthFilter }: TransactionsListPr
         <>
           {transactions.data.length === 0 ? (
             <div className="rounded-md border p-4 text-center text-muted-foreground">
-              No transactions found for the current month.
+              No transactions found for the selected month.
             </div>
           ) : (
             <div className="rounded-md border">
