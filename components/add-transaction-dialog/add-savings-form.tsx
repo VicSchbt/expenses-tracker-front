@@ -5,38 +5,36 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RecurrenceEndControls } from './recurrence-end-controls';
-import { createBill } from '@/lib/api';
+import { createSaving } from '@/lib/api';
 
-interface AddBillFormProps {
+interface AddSavingsFormProps {
   onCancel: () => void;
   onSuccess: () => void;
 }
 
-const RECURRENCE_OPTIONS: Array<{ value: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'; label: string }> = [
+const RECURRENCE_OPTIONS: Array<{
+  value: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  label: string;
+}> = [
   { value: 'DAILY', label: 'Daily' },
   { value: 'WEEKLY', label: 'Weekly' },
   { value: 'MONTHLY', label: 'Monthly' },
   { value: 'YEARLY', label: 'Yearly' },
 ];
 
-export function AddBillForm({ onCancel, onSuccess }: AddBillFormProps) {
-  const [billForm, setBillForm] = useState<{
-    label: string;
+export function AddSavingsForm({ onCancel, onSuccess }: AddSavingsFormProps) {
+  const [savingsForm, setSavingsForm] = useState<{
+    goalId: string;
     date: string;
     value: string;
     recurrence: string;
-    recurrenceEndMode: 'none' | 'endDate' | 'endCount';
     recurrenceEndDate: string;
-    recurrenceCount: string;
   }>({
-    label: '',
+    goalId: '',
     date: '',
     value: '',
     recurrence: '',
-    recurrenceEndMode: 'none',
     recurrenceEndDate: '',
-    recurrenceCount: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -46,29 +44,22 @@ export function AddBillForm({ onCancel, onSuccess }: AddBillFormProps) {
     setSubmitError(null);
     setIsSubmitting(true);
     try {
-      const shouldUseEndDate =
-        billForm.recurrence !== '' && billForm.recurrenceEndMode === 'endDate';
-      const shouldUseEndCount =
-        billForm.recurrence !== '' &&
-        billForm.recurrenceEndMode === 'endCount' &&
-        billForm.recurrenceCount !== '';
-      await createBill({
-        label: billForm.label.trim(),
-        date: billForm.date,
-        value: Number(billForm.value),
+      await createSaving({
+        goalId: savingsForm.goalId,
+        date: savingsForm.date,
+        value: Number(savingsForm.value),
         recurrence:
-          billForm.recurrence && billForm.recurrence !== ''
-            ? (billForm.recurrence as 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY')
+          savingsForm.recurrence && savingsForm.recurrence !== ''
+            ? (savingsForm.recurrence as 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY')
             : undefined,
         recurrenceEndDate:
-          shouldUseEndDate && billForm.recurrenceEndDate !== ''
-            ? billForm.recurrenceEndDate
+          savingsForm.recurrenceEndDate && savingsForm.recurrenceEndDate !== ''
+            ? savingsForm.recurrenceEndDate
             : undefined,
-        recurrenceCount: shouldUseEndCount ? Number(billForm.recurrenceCount) : undefined,
       });
       onSuccess();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create bill';
+      const message = error instanceof Error ? error.message : 'Failed to create saving';
       setSubmitError(message);
     } finally {
       setIsSubmitting(false);
@@ -79,29 +70,29 @@ export function AddBillForm({ onCancel, onSuccess }: AddBillFormProps) {
     <form className="space-y-4" onSubmit={handleSubmit}>
       <section className="space-y-3 rounded-md border bg-muted/50 p-4">
         <div className="space-y-1">
-          <Label htmlFor="bill-label">Label</Label>
+          <Label htmlFor="savings-goal-id">Savings Goal ID</Label>
           <Input
-            id="bill-label"
-            value={billForm.label}
+            id="savings-goal-id"
+            value={savingsForm.goalId}
             onChange={(event): void =>
-              setBillForm((previous) => ({
+              setSavingsForm((previous) => ({
                 ...previous,
-                label: event.target.value,
+                goalId: event.target.value,
               }))
             }
-            placeholder="Electricity Bill"
+            placeholder="Goal ID"
             required
           />
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1">
-            <Label htmlFor="bill-date">Date</Label>
+            <Label htmlFor="savings-date">Date</Label>
             <Input
-              id="bill-date"
+              id="savings-date"
               type="date"
-              value={billForm.date}
+              value={savingsForm.date}
               onChange={(event): void =>
-                setBillForm((previous) => ({
+                setSavingsForm((previous) => ({
                   ...previous,
                   date: event.target.value,
                 }))
@@ -110,39 +101,37 @@ export function AddBillForm({ onCancel, onSuccess }: AddBillFormProps) {
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="bill-value">Amount</Label>
+            <Label htmlFor="savings-value">Amount</Label>
             <Input
-              id="bill-value"
+              id="savings-value"
               type="number"
               min="0"
               step="0.01"
-              value={billForm.value}
+              value={savingsForm.value}
               onChange={(event): void =>
-                setBillForm((previous) => ({
+                setSavingsForm((previous) => ({
                   ...previous,
                   value: event.target.value,
                 }))
               }
-              placeholder="150.00"
+              placeholder="100.00"
               required
             />
           </div>
         </div>
+      </section>
+      <section className="space-y-3 rounded-md border bg-muted/50 p-4">
         <div className="space-y-1">
-          <Label htmlFor="bill-recurrence">Recurrence (optional)</Label>
+          <Label htmlFor="savings-recurrence">Recurrence (optional)</Label>
           <select
-            id="bill-recurrence"
+            id="savings-recurrence"
             className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            value={billForm.recurrence}
+            value={savingsForm.recurrence}
             onChange={(event): void =>
-              setBillForm((previous) => ({
+              setSavingsForm((previous) => ({
                 ...previous,
                 recurrence: event.target.value,
-                ...(event.target.value === '' && {
-                  recurrenceEndMode: 'none' as const,
-                  recurrenceEndDate: '',
-                  recurrenceCount: '',
-                }),
+                ...(event.target.value === '' && { recurrenceEndDate: '' }),
               }))
             }
           >
@@ -154,26 +143,29 @@ export function AddBillForm({ onCancel, onSuccess }: AddBillFormProps) {
             ))}
           </select>
           <p className="text-xs text-muted-foreground">
-            Select if this bill repeats on a regular basis (e.g., monthly utilities).
+            Select if this saving repeats on a regular basis (e.g., monthly savings contribution).
           </p>
         </div>
-        {billForm.recurrence && billForm.recurrence !== '' && (
-          <RecurrenceEndControls
-            state={{
-              recurrenceEndMode: billForm.recurrenceEndMode,
-              recurrenceEndDate: billForm.recurrenceEndDate,
-              recurrenceCount: billForm.recurrenceCount,
-            }}
-            minDate={billForm.date}
-            noEndDescription="Keep this bill recurring indefinitely."
-            idPrefix="bill"
-            onChange={(nextState): void =>
-              setBillForm((previous) => ({
-                ...previous,
-                ...nextState,
-              }))
-            }
-          />
+        {savingsForm.recurrence && savingsForm.recurrence !== '' && (
+          <div className="space-y-1">
+            <Label htmlFor="savings-recurrence-end-date">Recurrence End Date (optional)</Label>
+            <Input
+              id="savings-recurrence-end-date"
+              type="date"
+              value={savingsForm.recurrenceEndDate}
+              onChange={(event): void =>
+                setSavingsForm((previous) => ({
+                  ...previous,
+                  recurrenceEndDate: event.target.value,
+                }))
+              }
+              min={savingsForm.date}
+            />
+            <p className="text-xs text-muted-foreground">
+              Optionally set an end date for this recurring saving. Leave empty for ongoing
+              recurrence.
+            </p>
+          </div>
         )}
       </section>
       {submitError && <p className="text-sm text-destructive">{submitError}</p>}
@@ -182,10 +174,11 @@ export function AddBillForm({ onCancel, onSuccess }: AddBillFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : 'Save bill'}
+          {isSubmitting ? 'Saving...' : 'Save saving'}
         </Button>
       </div>
     </form>
   );
 }
+
 

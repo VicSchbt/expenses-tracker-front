@@ -27,6 +27,10 @@ interface CreateExpenseRequest {
   date: string;
   value: number;
   categoryId?: string;
+  isPaid?: boolean;
+  recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  recurrenceEndDate?: string;
+  isAuto?: boolean;
 }
 
 interface CreateIncomeRequest {
@@ -35,6 +39,7 @@ interface CreateIncomeRequest {
   value: number;
   recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   recurrenceEndDate?: string;
+  recurrenceCount?: number;
 }
 
 interface CreateBillRequest {
@@ -43,6 +48,7 @@ interface CreateBillRequest {
   value: number;
   recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   recurrenceEndDate?: string;
+  recurrenceCount?: number;
 }
 
 interface CreateSubscriptionRequest {
@@ -51,6 +57,18 @@ interface CreateSubscriptionRequest {
   value: number;
   recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   recurrenceEndDate?: string;
+  recurrenceCount?: number;
+}
+
+interface CreateSavingRequest {
+  goalId: string;
+  value: number;
+  date: string;
+  isPaid?: boolean;
+  recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  recurrenceEndDate?: string;
+  isAuto?: boolean;
+  recurrenceCount?: number;
 }
 
 interface CreateCategoryRequest {
@@ -72,6 +90,7 @@ export interface UpdateTransactionRequest {
   recurrenceScope?: RecurrenceScope;
   isPaid?: boolean;
   dueDate?: string;
+  recurrenceCount?: number;
 }
 
 interface UpdateCategoryRequest {
@@ -151,7 +170,6 @@ export async function createExpense(request: CreateExpenseRequest): Promise<Tran
   if (!token) {
     throw new Error('Authentication required');
   }
-
   const response = await fetch(`${API_BASE_URL}/transactions/expense`, {
     method: 'POST',
     headers: {
@@ -160,7 +178,6 @@ export async function createExpense(request: CreateExpenseRequest): Promise<Tran
     },
     body: JSON.stringify(request),
   });
-
   return handleResponse<Transaction>(response);
 }
 
@@ -214,7 +231,22 @@ export async function createSubscription(request: CreateSubscriptionRequest): Pr
     },
     body: JSON.stringify(request),
   });
+  return handleResponse<Transaction>(response);
+}
 
+export async function createSaving(request: CreateSavingRequest): Promise<Transaction> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+  const response = await fetch(`${API_BASE_URL}/transactions/saving`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(request),
+  });
   return handleResponse<Transaction>(response);
 }
 

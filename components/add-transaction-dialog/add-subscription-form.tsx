@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RecurrenceEndControls } from './recurrence-end-controls';
 import { createSubscription } from '@/lib/api';
 
 interface AddSubscriptionFormProps {
@@ -25,13 +26,17 @@ export function AddSubscriptionForm({ onCancel, onSuccess }: AddSubscriptionForm
     date: string;
     value: string;
     recurrence: string;
+    recurrenceEndMode: 'none' | 'endDate' | 'endCount';
     recurrenceEndDate: string;
+    recurrenceCount: string;
   }>({
     label: '',
     date: '',
     value: '',
     recurrence: '',
+    recurrenceEndMode: 'none',
     recurrenceEndDate: '',
+    recurrenceCount: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -41,6 +46,12 @@ export function AddSubscriptionForm({ onCancel, onSuccess }: AddSubscriptionForm
     setSubmitError(null);
     setIsSubmitting(true);
     try {
+      const shouldUseEndDate =
+        subscriptionForm.recurrence !== '' && subscriptionForm.recurrenceEndMode === 'endDate';
+      const shouldUseEndCount =
+        subscriptionForm.recurrence !== '' &&
+        subscriptionForm.recurrenceEndMode === 'endCount' &&
+        subscriptionForm.recurrenceCount !== '';
       await createSubscription({
         label: subscriptionForm.label.trim(),
         date: subscriptionForm.date,
@@ -50,9 +61,10 @@ export function AddSubscriptionForm({ onCancel, onSuccess }: AddSubscriptionForm
             ? (subscriptionForm.recurrence as 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY')
             : undefined,
         recurrenceEndDate:
-          subscriptionForm.recurrenceEndDate && subscriptionForm.recurrenceEndDate !== ''
+          shouldUseEndDate && subscriptionForm.recurrenceEndDate !== ''
             ? subscriptionForm.recurrenceEndDate
             : undefined,
+        recurrenceCount: shouldUseEndCount ? Number(subscriptionForm.recurrenceCount) : undefined,
       });
       onSuccess();
     } catch (error) {
@@ -126,7 +138,11 @@ export function AddSubscriptionForm({ onCancel, onSuccess }: AddSubscriptionForm
               setSubscriptionForm((previous) => ({
                 ...previous,
                 recurrence: event.target.value,
-                ...(event.target.value === '' && { recurrenceEndDate: '' }),
+                ...(event.target.value === '' && {
+                  recurrenceEndMode: 'none' as const,
+                  recurrenceEndDate: '',
+                  recurrenceCount: '',
+                }),
               }))
             }
           >
@@ -142,24 +158,22 @@ export function AddSubscriptionForm({ onCancel, onSuccess }: AddSubscriptionForm
           </p>
         </div>
         {subscriptionForm.recurrence && subscriptionForm.recurrence !== '' && (
-          <div className="space-y-1">
-            <Label htmlFor="subscription-recurrence-end-date">Recurrence End Date (optional)</Label>
-            <Input
-              id="subscription-recurrence-end-date"
-              type="date"
-              value={subscriptionForm.recurrenceEndDate}
-              onChange={(event): void =>
-                setSubscriptionForm((previous) => ({
-                  ...previous,
-                  recurrenceEndDate: event.target.value,
-                }))
-              }
-              min={subscriptionForm.date}
-            />
-            <p className="text-xs text-muted-foreground">
-              Optionally set an end date for this recurring subscription. Leave empty for ongoing recurrence.
-            </p>
-          </div>
+          <RecurrenceEndControls
+            state={{
+              recurrenceEndMode: subscriptionForm.recurrenceEndMode,
+              recurrenceEndDate: subscriptionForm.recurrenceEndDate,
+              recurrenceCount: subscriptionForm.recurrenceCount,
+            }}
+            minDate={subscriptionForm.date}
+            noEndDescription="Keep this subscription recurring indefinitely."
+            idPrefix="subscription"
+            onChange={(nextState): void =>
+              setSubscriptionForm((previous) => ({
+                ...previous,
+                ...nextState,
+              }))
+            }
+          />
         )}
       </section>
       {submitError && <p className="text-sm text-destructive">{submitError}</p>}

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RecurrenceEndControls } from './recurrence-end-controls';
 import { createIncome } from '@/lib/api';
 
 interface AddIncomeFormProps {
@@ -25,13 +26,17 @@ export function AddIncomeForm({ onCancel, onSuccess }: AddIncomeFormProps) {
     date: string;
     value: string;
     recurrence: string;
+    recurrenceEndMode: 'none' | 'endDate' | 'endCount';
     recurrenceEndDate: string;
+    recurrenceCount: string;
   }>({
     label: '',
     date: '',
     value: '',
     recurrence: '',
+    recurrenceEndMode: 'none',
     recurrenceEndDate: '',
+    recurrenceCount: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -41,6 +46,12 @@ export function AddIncomeForm({ onCancel, onSuccess }: AddIncomeFormProps) {
     setSubmitError(null);
     setIsSubmitting(true);
     try {
+      const shouldUseEndDate =
+        incomeForm.recurrence !== '' && incomeForm.recurrenceEndMode === 'endDate';
+      const shouldUseEndCount =
+        incomeForm.recurrence !== '' &&
+        incomeForm.recurrenceEndMode === 'endCount' &&
+        incomeForm.recurrenceCount !== '';
       await createIncome({
         label: incomeForm.label.trim(),
         date: incomeForm.date,
@@ -50,9 +61,10 @@ export function AddIncomeForm({ onCancel, onSuccess }: AddIncomeFormProps) {
             ? (incomeForm.recurrence as 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY')
             : undefined,
         recurrenceEndDate:
-          incomeForm.recurrenceEndDate && incomeForm.recurrenceEndDate !== ''
+          shouldUseEndDate && incomeForm.recurrenceEndDate !== ''
             ? incomeForm.recurrenceEndDate
             : undefined,
+        recurrenceCount: shouldUseEndCount ? Number(incomeForm.recurrenceCount) : undefined,
       });
       onSuccess();
     } catch (error) {
@@ -126,7 +138,11 @@ export function AddIncomeForm({ onCancel, onSuccess }: AddIncomeFormProps) {
               setIncomeForm((previous) => ({
                 ...previous,
                 recurrence: event.target.value,
-                ...(event.target.value === '' && { recurrenceEndDate: '' }),
+                ...(event.target.value === '' && {
+                  recurrenceEndMode: 'none' as const,
+                  recurrenceEndDate: '',
+                  recurrenceCount: '',
+                }),
               }))
             }
           >
@@ -142,24 +158,22 @@ export function AddIncomeForm({ onCancel, onSuccess }: AddIncomeFormProps) {
           </p>
         </div>
         {incomeForm.recurrence && incomeForm.recurrence !== '' && (
-          <div className="space-y-1">
-            <Label htmlFor="income-recurrence-end-date">Recurrence End Date (optional)</Label>
-            <Input
-              id="income-recurrence-end-date"
-              type="date"
-              value={incomeForm.recurrenceEndDate}
-              onChange={(event): void =>
-                setIncomeForm((previous) => ({
-                  ...previous,
-                  recurrenceEndDate: event.target.value,
-                }))
-              }
-              min={incomeForm.date}
-            />
-            <p className="text-xs text-muted-foreground">
-              Optionally set an end date for this recurring income. Leave empty for ongoing recurrence.
-            </p>
-          </div>
+          <RecurrenceEndControls
+            state={{
+              recurrenceEndMode: incomeForm.recurrenceEndMode,
+              recurrenceEndDate: incomeForm.recurrenceEndDate,
+              recurrenceCount: incomeForm.recurrenceCount,
+            }}
+            minDate={incomeForm.date}
+            noEndDescription="Keep this income recurring indefinitely."
+            idPrefix="income"
+            onChange={(nextState): void =>
+              setIncomeForm((previous) => ({
+                ...previous,
+                ...nextState,
+              }))
+            }
+          />
         )}
       </section>
       {submitError && <p className="text-sm text-destructive">{submitError}</p>}

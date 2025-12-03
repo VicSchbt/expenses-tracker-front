@@ -18,6 +18,7 @@ import { AddBillForm } from './add-bill-form';
 import { AddExpenseForm } from './add-expense-form';
 import { AddIncomeForm } from './add-income-form';
 import { AddSubscriptionForm } from './add-subscription-form';
+import { AddSavingsForm } from './add-savings-form';
 
 interface AddTransactionDialogProps {
   onExpenseCreated: () => void;
@@ -118,17 +119,15 @@ export function AddTransactionDialog({ onExpenseCreated }: AddTransactionDialogP
                 }}
               />
             )}
-            {selectedTransactionType &&
-              selectedTransactionType !== 'EXPENSE' &&
-              selectedTransactionType !== 'INCOME' &&
-              selectedTransactionType !== 'BILL' &&
-              selectedTransactionType !== 'SUBSCRIPTION' && (
-                <div className="rounded-md border bg-muted/50 p-4">
-                  <p className="text-sm text-muted-foreground">
-                    Form for {selectedTransactionType.toLowerCase()} transaction will appear here.
-                  </p>
-                </div>
-              )}
+            {selectedTransactionType === 'SAVINGS' && (
+              <AddSavingsForm
+                onCancel={(): void => handleDialogOpenChange(false)}
+                onSuccess={(): void => {
+                  onExpenseCreated();
+                  handleDialogOpenChange(false);
+                }}
+              />
+            )}
           </section>
         </DialogContent>
       </Dialog>

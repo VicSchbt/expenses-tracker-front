@@ -1,6 +1,6 @@
  'use client';
 
- import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RecurrenceEndControls } from './recurrence-end-controls';
 import { createCategory, createExpense, getCategories } from '@/lib/api';
 import type { Category } from '@/lib/types/category';
 
@@ -63,18 +64,36 @@ const CATEGORY_PRESET_ICONS: readonly string[] = [
   '🐾',
 ];
 
- export function AddExpenseForm({ onCancel, onSuccess }: AddExpenseFormProps) {
-   const [expenseForm, setExpenseForm] = useState<{
-     label: string;
-     date: string;
-     value: string;
-     categoryId: string;
-   }>({
-     label: '',
-     date: '',
-     value: '',
-     categoryId: '',
-   });
+const RECURRENCE_OPTIONS: Array<{
+  value: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  label: string;
+}> = [
+  { value: 'DAILY', label: 'Daily' },
+  { value: 'WEEKLY', label: 'Weekly' },
+  { value: 'MONTHLY', label: 'Monthly' },
+  { value: 'YEARLY', label: 'Yearly' },
+];
+
+export function AddExpenseForm({ onCancel, onSuccess }: AddExpenseFormProps) {
+  const [expenseForm, setExpenseForm] = useState<{
+    label: string;
+    date: string;
+    value: string;
+    categoryId: string;
+    recurrence: string;
+    recurrenceEndMode: 'none' | 'endDate' | 'endCount';
+    recurrenceEndDate: string;
+    recurrenceCount: string;
+  }>({
+    label: '',
+    date: '',
+    value: '',
+    categoryId: '',
+    recurrence: '',
+    recurrenceEndMode: 'none',
+    recurrenceEndDate: '',
+    recurrenceCount: '',
+  });
    const [isSubmitting, setIsSubmitting] = useState(false);
    const [submitError, setSubmitError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -107,17 +126,32 @@ const CATEGORY_PRESET_ICONS: readonly string[] = [
      void fetchCategories();
    }, [categories.length, isCategoriesLoading]);
 
-   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
-     event.preventDefault();
-     setSubmitError(null);
-     setIsSubmitting(true);
-     try {
-       await createExpense({
-         label: expenseForm.label,
-         date: expenseForm.date,
-         value: Number(expenseForm.value),
-         categoryId: expenseForm.categoryId || undefined,
-       });
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
+    setSubmitError(null);
+    setIsSubmitting(true);
+    try {
+      const shouldUseEndDate =
+        expenseForm.recurrence !== '' && expenseForm.recurrenceEndMode === 'endDate';
+      const shouldUseEndCount =
+        expenseForm.recurrence !== '' &&
+        expenseForm.recurrenceEndMode === 'endCount' &&
+        expenseForm.recurrenceCount !== '';
+      await createExpense({
+        label: expenseForm.label,
+        date: expenseForm.date,
+        value: Number(expenseForm.value),
+        categoryId: expenseForm.categoryId || undefined,
+        recurrence:
+          expenseForm.recurrence && expenseForm.recurrence !== ''
+            ? (expenseForm.recurrence as 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY')
+            : undefined,
+        recurrenceEndDate:
+          shouldUseEndDate && expenseForm.recurrenceEndDate !== ''
+            ? expenseForm.recurrenceEndDate
+            : undefined,
+        recurrenceCount: shouldUseEndCount ? Number(expenseForm.recurrenceCount) : undefined,
+      });
        onSuccess();
      } catch (error) {
        const message = error instanceof Error ? error.message : 'Failed to create expense';
@@ -249,6 +283,55 @@ const CATEGORY_PRESET_ICONS: readonly string[] = [
              </p>
            </div>
          </section>
+        <section className="space-y-3 rounded-md border bg-muted/50 p-4">
+          <div className="space-y-1">
+            <Label htmlFor="expense-recurrence">Recurrence (optional)</Label>
+            <select
+              id="expense-recurrence"
+              className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={expenseForm.recurrence}
+              onChange={(event): void =>
+                setExpenseForm((previous) => ({
+                  ...previous,
+                  recurrence: event.target.value,
+                  ...(event.target.value === '' && {
+                    recurrenceEndMode: 'none' as const,
+                    recurrenceEndDate: '',
+                    recurrenceCount: '',
+                  }),
+                }))
+              }
+            >
+              <option value="">No recurrence</option>
+              {RECURRENCE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-muted-foreground">
+              Select if this expense repeats on a regular basis (e.g., monthly groceries).
+            </p>
+          </div>
+          {expenseForm.recurrence && expenseForm.recurrence !== '' && (
+            <RecurrenceEndControls
+              state={{
+                recurrenceEndMode: expenseForm.recurrenceEndMode,
+                recurrenceEndDate: expenseForm.recurrenceEndDate,
+                recurrenceCount: expenseForm.recurrenceCount,
+              }}
+              minDate={expenseForm.date}
+              noEndDescription="Keep this expense recurring indefinitely."
+              idPrefix="expense"
+              onChange={(nextState): void =>
+                setExpenseForm((previous) => ({
+                  ...previous,
+                  ...nextState,
+                }))
+              }
+            />
+          )}
+        </section>
          {submitError && <p className="text-sm text-destructive">{submitError}</p>}
          <div className="flex justify-end gap-2">
            <Button variant="outline" type="button" onClick={onCancel}>
