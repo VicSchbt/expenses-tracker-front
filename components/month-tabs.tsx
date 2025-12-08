@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
 
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useUserStore } from '@/stores/use-user-store';
 import type { MonthFilter } from '@/lib/types/month-filter';
+import { useUserStore } from '@/stores/use-user-store';
 
 interface MonthTabsProps {
   monthFilter: MonthFilter;
@@ -26,9 +26,7 @@ function createMonthOptions(months: MonthFilter[]): MonthOption[] {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonthIndex = currentDate.getMonth();
-  const availableMonthKeys = new Set(
-    months.map((month) => month.year * 12 + (month.month - 1)),
-  );
+  const availableMonthKeys = new Set(months.map((month) => month.year * 12 + (month.month - 1)));
   const windowMonths: MonthFilter[] = [];
   for (let offset = -PAST_MONTH_COUNT; offset <= FUTURE_MONTH_COUNT; offset += 1) {
     const date = new Date(currentYear, currentMonthIndex + offset, 1);
@@ -68,7 +66,10 @@ function createMonthOptions(months: MonthFilter[]): MonthOption[] {
 
 export function MonthTabs({ monthFilter, onMonthFilterChange }: MonthTabsProps) {
   const availableMonths = useUserStore((state) => state.availableMonths);
-  const months = useMemo<MonthOption[]>(() => createMonthOptions(availableMonths), [availableMonths]);
+  const months = useMemo<MonthOption[]>(
+    () => createMonthOptions(availableMonths),
+    [availableMonths],
+  );
   useEffect(() => {
     if (months.length === 0) {
       return;
@@ -77,10 +78,16 @@ export function MonthTabs({ monthFilter, onMonthFilterChange }: MonthTabsProps) 
       return month.year === monthFilter.year && month.month === monthFilter.month;
     });
     if (!hasSelectedMonth) {
-      const firstMonth = months[0];
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentMonthOption = months.find((month) => {
+        return month.year === currentYear && month.month === currentMonth;
+      });
+      const defaultMonth = currentMonthOption ?? months[0];
       onMonthFilterChange({
-        year: firstMonth.year,
-        month: firstMonth.month,
+        year: defaultMonth.year,
+        month: defaultMonth.month,
       });
     }
   }, [monthFilter, months, onMonthFilterChange]);
@@ -101,7 +108,7 @@ export function MonthTabs({ monthFilter, onMonthFilterChange }: MonthTabsProps) 
   return (
     <section className="mb-6">
       <Tabs value={selectedValue} onValueChange={handleValueChange}>
-        <TabsList className="inline-flex gap-1 overflow-x-auto justify-start">
+        <TabsList className="inline-flex justify-start gap-1 overflow-x-auto">
           {months.map((month) => (
             <TabsTrigger key={month.value} value={month.value}>
               {month.label}
