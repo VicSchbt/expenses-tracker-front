@@ -3,6 +3,7 @@
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { AddTransactionButton } from '@/components/add-transaction-dialog/add-transaction-button';
 import { createBillColumns } from '@/components/transactions/bill-columns';
 import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
 import {
@@ -25,16 +26,17 @@ import {
   updateTransaction,
   type UpdateTransactionRequest,
 } from '@/lib/api';
-import type { MonthFilter } from '@/lib/types/month-filter';
 import type { Category } from '@/lib/types/category';
+import type { MonthFilter } from '@/lib/types/month-filter';
 import type { PaginatedTransactions, Transaction } from '@/lib/types/transaction';
 
 interface BillListProps {
   refreshKey: number;
   monthFilter: MonthFilter;
+  onTransactionCreated?: () => void;
 }
 
-export function BillList({ refreshKey, monthFilter }: BillListProps) {
+export function BillList({ refreshKey, monthFilter, onTransactionCreated }: BillListProps) {
   const [bills, setBills] = useState<PaginatedTransactions | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -247,10 +249,21 @@ export function BillList({ refreshKey, monthFilter }: BillListProps) {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const handleTransactionCreated = (): void => {
+    if (onTransactionCreated) {
+      onTransactionCreated();
+    }
+  };
+
   return (
     <div className="w-full max-w-4xl">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Bills</h2>
+        <AddTransactionButton
+          transactionType="BILL"
+          label="Add Bill"
+          onTransactionCreated={handleTransactionCreated}
+        />
       </div>
 
       {isLoading && <div className="text-center text-muted-foreground">Loading bills...</div>}

@@ -3,6 +3,7 @@
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { AddTransactionButton } from '@/components/add-transaction-dialog/add-transaction-button';
 import { createColumns } from '@/components/transactions/columns';
 import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
 import {
@@ -32,9 +33,14 @@ import type { PaginatedTransactions, Transaction } from '@/lib/types/transaction
 interface TransactionsListProps {
   refreshKey: number;
   monthFilter: MonthFilter;
+  onTransactionCreated?: () => void;
 }
 
-export function TransactionsList({ refreshKey, monthFilter }: TransactionsListProps) {
+export function TransactionsList({
+  refreshKey,
+  monthFilter,
+  onTransactionCreated,
+}: TransactionsListProps) {
   const [transactions, setTransactions] = useState<PaginatedTransactions | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -266,10 +272,21 @@ export function TransactionsList({ refreshKey, monthFilter }: TransactionsListPr
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const handleTransactionCreated = (): void => {
+    if (onTransactionCreated) {
+      onTransactionCreated();
+    }
+  };
+
   return (
     <div className="w-full">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Transactions</h2>
+        <AddTransactionButton
+          transactionType="EXPENSE"
+          label="Add Expense"
+          onTransactionCreated={handleTransactionCreated}
+        />
       </div>
 
       {isLoading && (

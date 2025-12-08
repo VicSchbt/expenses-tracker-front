@@ -3,6 +3,7 @@
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { AddTransactionButton } from '@/components/add-transaction-dialog/add-transaction-button';
 import { DeleteTransactionDialog } from '@/components/transactions/delete-transaction-dialog';
 import {
   EditTransactionDialog,
@@ -25,16 +26,17 @@ import {
   updateTransaction,
   type UpdateTransactionRequest,
 } from '@/lib/api';
-import type { MonthFilter } from '@/lib/types/month-filter';
 import type { Category } from '@/lib/types/category';
+import type { MonthFilter } from '@/lib/types/month-filter';
 import type { PaginatedTransactions, Transaction } from '@/lib/types/transaction';
 
 interface IncomeListProps {
   refreshKey: number;
   monthFilter: MonthFilter;
+  onTransactionCreated?: () => void;
 }
 
-export function IncomeList({ refreshKey, monthFilter }: IncomeListProps) {
+export function IncomeList({ refreshKey, monthFilter, onTransactionCreated }: IncomeListProps) {
   const [income, setIncome] = useState<PaginatedTransactions | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -247,10 +249,21 @@ export function IncomeList({ refreshKey, monthFilter }: IncomeListProps) {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const handleTransactionCreated = (): void => {
+    if (onTransactionCreated) {
+      onTransactionCreated();
+    }
+  };
+
   return (
     <div className="w-full max-w-4xl">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Income</h2>
+        <AddTransactionButton
+          transactionType="INCOME"
+          label="Add Income"
+          onTransactionCreated={handleTransactionCreated}
+        />
       </div>
 
       {isLoading && <div className="text-center text-muted-foreground">Loading income...</div>}

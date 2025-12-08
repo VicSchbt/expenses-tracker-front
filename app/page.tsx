@@ -74,12 +74,28 @@ export default function Home() {
           <MonthTabs monthFilter={monthFilter} onMonthFilterChange={setMonthFilter} />
           <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_2fr] lg:grid-cols-[1fr_2fr]">
             <div className="flex flex-col gap-12">
-              <IncomeList refreshKey={incomeRefreshKey} monthFilter={monthFilter} />
-              <BillList refreshKey={billsRefreshKey} monthFilter={monthFilter} />
-              <SubscriptionList refreshKey={subscriptionsRefreshKey} monthFilter={monthFilter} />
+              <IncomeList
+                refreshKey={incomeRefreshKey}
+                monthFilter={monthFilter}
+                onTransactionCreated={handleTransactionCreated}
+              />
+              <BillList
+                refreshKey={billsRefreshKey}
+                monthFilter={monthFilter}
+                onTransactionCreated={handleTransactionCreated}
+              />
+              <SubscriptionList
+                refreshKey={subscriptionsRefreshKey}
+                monthFilter={monthFilter}
+                onTransactionCreated={handleTransactionCreated}
+              />
             </div>
             <div>
-              <TransactionsList refreshKey={transactionsRefreshKey} monthFilter={monthFilter} />
+              <TransactionsList
+                refreshKey={transactionsRefreshKey}
+                monthFilter={monthFilter}
+                onTransactionCreated={handleTransactionCreated}
+              />
             </div>
           </div>
         </main>
