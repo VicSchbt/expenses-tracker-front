@@ -45,3 +45,14 @@ export function getCategoryBackgroundColor(color: string | null): string {
   return `rgba(${red}, ${green}, ${blue}, 0.25)`;
 }
 
+export function formatTransactionLabel(label: string, occurrenceNumber: string | null): string {
+  if (!occurrenceNumber) {
+    return label;
+  }
+  // Validate occurrenceNumber format - should be "current/total" (e.g., "1/12", "3/4")
+  // Reject if it contains "undefined" or doesn't match the expected pattern
+  if (occurrenceNumber.includes('undefined') || !/^\d+\/\d+$/.test(occurrenceNumber)) {
+    return label;
+  }
+  return `${label} ${occurrenceNumber}`;
+}

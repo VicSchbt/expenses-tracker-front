@@ -6,7 +6,12 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Category } from '@/lib/types/category';
 import type { Transaction } from '@/lib/types/transaction';
-import { formatCurrency, formatDate, getCategoryBackgroundColor } from '@/lib/utils';
+import {
+  formatCurrency,
+  formatDate,
+  formatTransactionLabel,
+  getCategoryBackgroundColor,
+} from '@/lib/utils';
 
 interface TransactionWithCategory extends Transaction {
   category: Category | null;
@@ -28,7 +33,12 @@ export function createColumns({
       accessorKey: 'label',
       header: 'Label',
       cell: ({ row }) => {
-        return <div className="font-medium">{row.original.label}</div>;
+        const transaction = row.original;
+        return (
+          <div className="font-medium">
+            {formatTransactionLabel(transaction.label, transaction.occurrenceNumber)}
+          </div>
+        );
       },
     },
     {
@@ -51,7 +61,11 @@ export function createColumns({
             className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
             style={{ backgroundColor: getCategoryBackgroundColor(category.color) }}
           >
-            {category.icon && <span className="mr-1" aria-hidden="true">{category.icon}</span>}
+            {category.icon && (
+              <span className="mr-1" aria-hidden="true">
+                {category.icon}
+              </span>
+            )}
             {category.label}
           </span>
         );
@@ -104,4 +118,3 @@ export function createColumns({
     },
   ];
 }
-

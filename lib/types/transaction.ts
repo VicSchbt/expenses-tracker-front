@@ -10,8 +10,10 @@ export interface Transaction {
   categoryId: string | null;
   goalId: string | null;
   recurrence: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | null;
+  recurrenceCount: number | null;
   recurrenceEndDate: string | null;
   parentTransactionId: string | null;
+  occurrenceNumber: string | null;
   isPaid: boolean | null;
   dueDate: string | null;
   createdAt: string;

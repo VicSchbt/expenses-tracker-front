@@ -66,10 +66,7 @@ export function TransactionItem({
       >
         {!isRefund && `-${formatCurrency(Math.abs(transaction.value))}`}
       </div>
-      <div
-        className="ml-4 flex justify-end gap-2 sm:ml-6"
-        style={{ gridArea: 'actions' }}
-      >
+      <div className="ml-4 flex justify-end gap-2 sm:ml-6" style={{ gridArea: 'actions' }}>
         <Button
           variant="ghost"
           size="icon"
@@ -91,5 +88,3 @@ export function TransactionItem({
     </div>
   );
 }
-
-
