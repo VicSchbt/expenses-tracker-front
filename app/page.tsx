@@ -6,6 +6,7 @@ import { AddTransactionDialog } from '@/components/add-transaction-dialog/index'
 import { AppNavbar } from '@/components/app-navbar';
 import { AuthGuard } from '@/components/auth-guard';
 import { BillList } from '@/components/bill-list';
+import { DailyTransactionsChart } from '@/components/daily-transactions-chart';
 import { IncomeList } from '@/components/income-list';
 import { MonthTabs } from '@/components/month-tabs';
 import { SavingsList } from '@/components/savings-list';
@@ -75,6 +76,7 @@ export default function Home() {
             <AddTransactionDialog onExpenseCreated={handleTransactionCreated} />
           </div>
           <MonthTabs monthFilter={monthFilter} onMonthFilterChange={setMonthFilter} />
+          <DailyTransactionsChart monthFilter={monthFilter} refreshKey={transactionsRefreshKey} />
           <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_2fr] lg:grid-cols-[1fr_2fr]">
             <div className="flex flex-col gap-12">
               <IncomeList
