@@ -1,5 +1,6 @@
 import type { Category } from './types/category';
 import type { MonthFilter } from './types/month-filter';
+import type { SavingsGoal } from './types/savings-goal';
 import type { PaginatedTransactions, Transaction } from './types/transaction';
 
 const API_BASE_URL = '/api';
@@ -97,6 +98,18 @@ interface UpdateCategoryRequest {
   label?: string;
   icon?: string | null;
   color?: string | null;
+}
+
+interface CreateSavingsGoalRequest {
+  name: string;
+  targetAmount: number;
+  dueDate?: string;
+}
+
+interface UpdateSavingsGoalRequest {
+  name?: string;
+  targetAmount?: number;
+  dueDate?: string | null;
 }
 
 export async function loginUser(credentials: LoginRequest): Promise<LoginResponse> {
@@ -359,6 +372,47 @@ export async function getIncome(params?: GetIncomeParams): Promise<PaginatedTran
 
   const queryString = searchParams.toString();
   const url = `${API_BASE_URL}/transactions/income${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<PaginatedTransactions>(response);
+}
+
+interface GetSavingsParams {
+  page?: number;
+  limit?: number;
+  year?: number;
+  month?: number;
+}
+
+export async function getSavings(params?: GetSavingsParams): Promise<PaginatedTransactions> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const searchParams = new URLSearchParams();
+  if (params?.page) {
+    searchParams.append('page', params.page.toString());
+  }
+  if (params?.limit) {
+    searchParams.append('limit', params.limit.toString());
+  }
+  if (params?.year) {
+    searchParams.append('year', params.year.toString());
+  }
+  if (params?.month) {
+    searchParams.append('month', params.month.toString());
+  }
+
+  const queryString = searchParams.toString();
+  const url = `${API_BASE_URL}/transactions/savings${queryString ? `?${queryString}` : ''}`;
 
   const response = await fetch(url, {
     method: 'GET',
@@ -637,6 +691,79 @@ export async function deleteCategory(id: string): Promise<void> {
   });
 
   await handleResponse<{ message: string }>(response);
+}
+
+export async function getSavingsGoals(): Promise<SavingsGoal[]> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/savings-goals`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<SavingsGoal[]>(response);
+}
+
+export async function createSavingsGoal(request: CreateSavingsGoalRequest): Promise<SavingsGoal> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/savings-goals`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(request),
+  });
+
+  return handleResponse<SavingsGoal>(response);
+}
+
+export async function updateSavingsGoal(
+  id: string,
+  request: UpdateSavingsGoalRequest,
+): Promise<SavingsGoal> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/savings-goals/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(request),
+  });
+
+  return handleResponse<SavingsGoal>(response);
+}
+
+export async function deleteSavingsGoal(id: string): Promise<{ message: string }> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/savings-goals/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<{ message: string }>(response);
 }
 
 export async function updateTransaction(

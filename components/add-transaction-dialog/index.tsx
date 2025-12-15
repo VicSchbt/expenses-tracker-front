@@ -80,6 +80,8 @@ export function AddTransactionDialog({
     handleDialogOpenChange(true);
   };
 
+  const dialogTitle = selectedTransactionType === 'SAVINGS' ? 'Add Saving' : 'Add Transaction';
+
   return (
     <>
       {shouldRenderTrigger && (
@@ -100,7 +102,7 @@ export function AddTransactionDialog({
         <DialogContent className="sm:max-w-[500px]">
           <section className="space-y-4">
             <DialogHeader>
-              <DialogTitle>Add Transaction</DialogTitle>
+              <DialogTitle>{dialogTitle}</DialogTitle>
               {showTypeSelection && (
                 <DialogDescription>
                   Select the type of transaction you want to create.

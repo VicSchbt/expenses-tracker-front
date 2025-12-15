@@ -8,6 +8,7 @@ import { AuthGuard } from '@/components/auth-guard';
 import { BillList } from '@/components/bill-list';
 import { IncomeList } from '@/components/income-list';
 import { MonthTabs } from '@/components/month-tabs';
+import { SavingsList } from '@/components/savings-list';
 import { SubscriptionList } from '@/components/subscription-list';
 import { TransactionsList } from '@/components/transactions-list';
 import { getAvailableMonths } from '@/lib/api';
@@ -19,6 +20,7 @@ export default function Home() {
   const [incomeRefreshKey, setIncomeRefreshKey] = useState(0);
   const [billsRefreshKey, setBillsRefreshKey] = useState(0);
   const [subscriptionsRefreshKey, setSubscriptionsRefreshKey] = useState(0);
+  const [savingsRefreshKey, setSavingsRefreshKey] = useState(0);
   const [monthFilter, setMonthFilter] = useState<MonthFilter>(() => {
     const currentDate = new Date();
     return {
@@ -60,6 +62,7 @@ export default function Home() {
     setIncomeRefreshKey((previousRefreshKey) => previousRefreshKey + 1);
     setBillsRefreshKey((previousRefreshKey) => previousRefreshKey + 1);
     setSubscriptionsRefreshKey((previousRefreshKey) => previousRefreshKey + 1);
+    setSavingsRefreshKey((previousRefreshKey) => previousRefreshKey + 1);
   };
 
   return (
@@ -76,6 +79,11 @@ export default function Home() {
             <div className="flex flex-col gap-12">
               <IncomeList
                 refreshKey={incomeRefreshKey}
+                monthFilter={monthFilter}
+                onTransactionCreated={handleTransactionCreated}
+              />
+              <SavingsList
+                refreshKey={savingsRefreshKey}
                 monthFilter={monthFilter}
                 onTransactionCreated={handleTransactionCreated}
               />
