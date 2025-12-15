@@ -133,18 +133,12 @@ export function SubscriptionList({
     }
     try {
       setIsUpdatingTransaction(true);
-      const transactionToEdit = subscriptions?.data.find(
-        (transaction) => transaction.id === editingTransactionId,
-      );
       const updatePayload: UpdateTransactionRequest = {
         label: editForm.label.trim(),
         date: editForm.date,
         value: Number(editForm.value),
         categoryId: editForm.categoryId || undefined,
-        recurrenceScope:
-          transactionToEdit?.recurrence || transactionToEdit?.parentTransactionId
-            ? editForm.recurrenceScope
-            : undefined,
+        recurrenceScope: editForm.recurrenceScope,
       };
       const updatedTransaction = await updateTransaction(editingTransactionId, updatePayload);
       setSubscriptions((currentSubscriptions) => {

@@ -1,5 +1,7 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
+import type { ChangeEvent } from 'react';
 
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { MonthFilter } from '@/lib/types/month-filter';
 import { useUserStore } from '@/stores/use-user-store';
@@ -70,27 +72,6 @@ export function MonthTabs({ monthFilter, onMonthFilterChange }: MonthTabsProps) 
     () => createMonthOptions(availableMonths),
     [availableMonths],
   );
-  useEffect(() => {
-    if (months.length === 0) {
-      return;
-    }
-    const hasSelectedMonth = months.some((month) => {
-      return month.year === monthFilter.year && month.month === monthFilter.month;
-    });
-    if (!hasSelectedMonth) {
-      const currentDate = new Date();
-      const currentYear = currentDate.getFullYear();
-      const currentMonth = currentDate.getMonth() + 1;
-      const currentMonthOption = months.find((month) => {
-        return month.year === currentYear && month.month === currentMonth;
-      });
-      const defaultMonth = currentMonthOption ?? months[0];
-      onMonthFilterChange({
-        year: defaultMonth.year,
-        month: defaultMonth.month,
-      });
-    }
-  }, [monthFilter, months, onMonthFilterChange]);
   if (months.length === 0) {
     return null;
   }
@@ -105,17 +86,47 @@ export function MonthTabs({ monthFilter, onMonthFilterChange }: MonthTabsProps) 
       month: selectedMonth.month,
     });
   };
+  const handleMonthInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    const value = event.target.value;
+    if (!value) {
+      return;
+    }
+    const [yearString, monthString] = value.split('-');
+    const year = Number.parseInt(yearString, 10);
+    const month = Number.parseInt(monthString, 10);
+    if (Number.isNaN(year) || Number.isNaN(month)) {
+      return;
+    }
+    onMonthFilterChange({
+      year,
+      month,
+    });
+  };
   return (
     <section className="mb-6">
-      <Tabs value={selectedValue} onValueChange={handleValueChange}>
-        <TabsList className="inline-flex justify-start gap-1 overflow-x-auto">
-          {months.map((month) => (
-            <TabsTrigger key={month.value} value={month.value}>
-              {month.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <Tabs value={selectedValue} onValueChange={handleValueChange}>
+          <TabsList className="inline-flex justify-start gap-1 overflow-x-auto">
+            {months.map((month) => (
+              <TabsTrigger key={month.value} value={month.value}>
+                {month.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+        <div className="flex items-center gap-2">
+          <label htmlFor="month-picker" className="text-sm text-muted-foreground">
+            Select month
+          </label>
+          <Input
+            id="month-picker"
+            type="month"
+            value={selectedValue}
+            onChange={handleMonthInputChange}
+            className="max-w-[180px]"
+          />
+        </div>
+      </div>
     </section>
   );
 }

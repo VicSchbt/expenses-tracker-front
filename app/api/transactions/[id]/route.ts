@@ -4,9 +4,9 @@ import { NextResponse } from 'next/server';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function PATCH(request: NextRequest, context: RouteParams) {
@@ -17,7 +17,8 @@ export async function PATCH(request: NextRequest, context: RouteParams) {
     }
 
     const body = await request.json();
-    const url = `${API_BASE_URL}/transactions/${context.params.id}`;
+    const { id } = await context.params;
+    const url = `${API_BASE_URL}/transactions/${id}`;
 
     const response = await fetch(url, {
       method: 'PATCH',
@@ -51,9 +52,8 @@ export async function DELETE(request: NextRequest, context: RouteParams) {
     }
 
     const queryString = queryParams.toString();
-    const url = `${API_BASE_URL}/transactions/${context.params.id}${
-      queryString ? `?${queryString}` : ''
-    }`;
+    const { id } = await context.params;
+    const url = `${API_BASE_URL}/transactions/${id}${queryString ? `?${queryString}` : ''}`;
 
     const response = await fetch(url, {
       method: 'DELETE',
@@ -69,5 +69,3 @@ export async function DELETE(request: NextRequest, context: RouteParams) {
     return NextResponse.json({ message: 'An error occurred' }, { status: 500 });
   }
 }
-
-

@@ -127,18 +127,12 @@ export function BillList({ refreshKey, monthFilter, onTransactionCreated }: Bill
     }
     try {
       setIsUpdatingTransaction(true);
-      const transactionToEdit = bills?.data.find(
-        (transaction) => transaction.id === editingTransactionId,
-      );
       const updatePayload: UpdateTransactionRequest = {
         label: editForm.label.trim(),
         date: editForm.date,
         value: Number(editForm.value),
         categoryId: editForm.categoryId || undefined,
-        recurrenceScope:
-          transactionToEdit?.recurrence || transactionToEdit?.parentTransactionId
-            ? editForm.recurrenceScope
-            : undefined,
+        recurrenceScope: editForm.recurrenceScope,
       };
       const updatedTransaction = await updateTransaction(editingTransactionId, updatePayload);
       setBills((currentBills) => {
