@@ -63,6 +63,7 @@ export function useCategories() {
     label: string;
     color?: string;
     icon?: string;
+    budget?: number | null;
   }): Promise<void> => {
     if (!editingCategoryId) {
       return;
@@ -73,6 +74,7 @@ export function useCategories() {
         label: data.label,
         color: data.color ?? null,
         icon: data.icon ?? null,
+        budget: data.budget,
       });
       setCategories((previous) =>
         previous.map((category) =>
@@ -93,6 +95,7 @@ export function useCategories() {
     label: string;
     color?: string;
     icon?: string;
+    budget?: number;
   }): Promise<void> => {
     setCreateCategoryError(null);
     setIsCreatingCategory(true);
@@ -101,6 +104,7 @@ export function useCategories() {
         label: data.label,
         color: data.color,
         icon: data.icon,
+        budget: data.budget,
       });
       setCategories((previous) => [...previous, createdCategory]);
       setIsAddCategoryFormOpen(false);
@@ -139,4 +143,3 @@ export function useCategories() {
     handleToggleAddCategoryForm,
   };
 }
-

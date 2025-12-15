@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CATEGORY_PRESET_COLORS, CATEGORY_PRESET_ICONS } from '@/lib/constants/category';
@@ -7,12 +8,18 @@ interface AddCategoryFormData {
   label: string;
   color: string;
   icon: string;
+  budget: string;
 }
 
 interface AddCategoryFormProps {
   isCreating: boolean;
   error: string | null;
-  onSubmit: (data: { label: string; color?: string; icon?: string }) => Promise<void>;
+  onSubmit: (data: {
+    label: string;
+    color?: string;
+    icon?: string;
+    budget?: number;
+  }) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -34,6 +41,7 @@ export function AddCategoryForm({
       label: '',
       color: '',
       icon: '',
+      budget: '',
     },
   });
 
@@ -41,10 +49,17 @@ export function AddCategoryForm({
   const watchedIcon = watch('icon');
 
   const onSubmitForm = async (data: AddCategoryFormData): Promise<void> => {
+    const trimmedBudget = data.budget.trim();
+    const hasBudgetValue = trimmedBudget !== '';
+    const parsedBudget = hasBudgetValue ? Number(trimmedBudget) : undefined;
+    if (hasBudgetValue && Number.isNaN(parsedBudget)) {
+      return;
+    }
     await onSubmit({
       label: data.label.trim(),
       color: data.color.trim() || undefined,
       icon: data.icon.trim() || undefined,
+      budget: parsedBudget,
     });
     reset();
   };
@@ -100,6 +115,23 @@ export function AddCategoryForm({
         </div>
       </div>
       <div className="space-y-1">
+        <label htmlFor="new-category-budget" className="text-sm font-medium">
+          Monthly budget (optional)
+        </label>
+        <Input
+          id="new-category-budget"
+          type="number"
+          step="0.01"
+          min="0"
+          {...register('budget')}
+          placeholder="e.g. 500"
+          className="h-8"
+        />
+        <p className="text-xs text-muted-foreground">
+          Leave empty if you do not want to set a budget for this category.
+        </p>
+      </div>
+      <div className="space-y-1">
         <label htmlFor="new-category-color" className="text-sm font-medium">
           Color (optional)
         </label>
@@ -111,11 +143,7 @@ export function AddCategoryForm({
               {...register('color')}
               className="h-8 w-10 cursor-pointer rounded border bg-transparent p-0"
             />
-            <Input
-              {...register('color')}
-              placeholder="#FF5733"
-              className="h-8 flex-1"
-            />
+            <Input {...register('color')} placeholder="#FF5733" className="h-8 flex-1" />
           </div>
           <div className="flex flex-wrap gap-2">
             {CATEGORY_PRESET_COLORS.map((presetColor) => (

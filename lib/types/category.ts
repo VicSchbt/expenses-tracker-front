@@ -4,6 +4,5 @@ export interface Category {
   label: string;
   icon: string | null;
   color: string | null;
+  budget: number | null;
 }
-
-

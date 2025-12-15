@@ -76,6 +76,7 @@ interface CreateCategoryRequest {
   label: string;
   icon?: string | null;
   color?: string | null;
+  budget?: number;
 }
 
 type RecurrenceType = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
@@ -98,6 +99,7 @@ interface UpdateCategoryRequest {
   label?: string;
   icon?: string | null;
   color?: string | null;
+  budget?: number | null;
 }
 
 interface CreateSavingsGoalRequest {
@@ -834,4 +836,40 @@ export async function getAvailableMonths(): Promise<MonthFilter[]> {
   });
 
   return handleResponse<MonthFilter[]>(response);
+}
+
+interface GetCategoryTransactionsParams {
+  year?: number;
+  month?: number;
+}
+
+export async function getCategoryTransactions(
+  id: string,
+  params?: GetCategoryTransactionsParams,
+): Promise<Transaction[]> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const searchParams = new URLSearchParams();
+  if (params?.year) {
+    searchParams.append('year', params.year.toString());
+  }
+  if (params?.month) {
+    searchParams.append('month', params.month.toString());
+  }
+
+  const queryString = searchParams.toString();
+  const url = `${API_BASE_URL}/categories/${id}/transactions${queryString ? `?${queryString}` : ''}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<Transaction[]>(response);
 }

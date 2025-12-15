@@ -1,5 +1,6 @@
-import { CategoryItem } from './category-item';
 import type { Category } from '@/lib/types/category';
+
+import { CategoryItem } from './category-item';
 
 interface CategoriesListProps {
   categories: Category[];
@@ -9,7 +10,12 @@ interface CategoriesListProps {
   isUpdatingId: string | null;
   onStartEdit: (category: Category) => void;
   onCancelEdit: () => void;
-  onSaveEdit: (data: { label: string; color?: string; icon?: string }) => Promise<void>;
+  onSaveEdit: (data: {
+    label: string;
+    color?: string;
+    icon?: string;
+    budget?: number | null;
+  }) => Promise<void>;
   onDelete: (categoryId: string) => Promise<void>;
 }
 

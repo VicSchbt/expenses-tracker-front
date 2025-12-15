@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button';
+import type { Category } from '@/lib/types/category';
+
 import { AddCategoryForm } from './add-category-form';
 import { CategoriesList } from './categories-list';
-import type { Category } from '@/lib/types/category';
 
 interface CategoriesSectionProps {
   categories: Category[];
@@ -13,10 +14,20 @@ interface CategoriesSectionProps {
   isDeletingId: string | null;
   isUpdatingId: string | null;
   onToggleAddCategoryForm: () => void;
-  onCreateCategory: (data: { label: string; color?: string; icon?: string }) => Promise<void>;
+  onCreateCategory: (data: {
+    label: string;
+    color?: string;
+    icon?: string;
+    budget?: number;
+  }) => Promise<void>;
   onStartEdit: (category: Category) => void;
   onCancelEdit: () => void;
-  onSaveEdit: (data: { label: string; color?: string; icon?: string }) => Promise<void>;
+  onSaveEdit: (data: {
+    label: string;
+    color?: string;
+    icon?: string;
+    budget?: number | null;
+  }) => Promise<void>;
   onDelete: (categoryId: string) => Promise<void>;
 }
 

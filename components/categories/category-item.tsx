@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useCategoryBudgetProgress } from '@/hooks/use-category-budget-progress';
 import { CATEGORY_PRESET_COLORS, CATEGORY_PRESET_ICONS } from '@/lib/constants/category';
 import type { Category } from '@/lib/types/category';
 
@@ -10,6 +11,7 @@ interface CategoryEditFormData {
   label: string;
   color: string;
   icon: string;
+  budget: string;
 }
 
 interface CategoryItemProps {
@@ -19,7 +21,12 @@ interface CategoryItemProps {
   isUpdating: boolean;
   onStartEdit: (category: Category) => void;
   onCancelEdit: () => void;
-  onSaveEdit: (data: { label: string; color?: string; icon?: string }) => Promise<void>;
+  onSaveEdit: (data: {
+    label: string;
+    color?: string;
+    icon?: string;
+    budget?: number | null;
+  }) => Promise<void>;
   onDelete: (categoryId: string) => Promise<void>;
 }
 
@@ -45,11 +52,19 @@ export function CategoryItem({
       label: category.label,
       color: category.color ?? '',
       icon: category.icon ?? '',
+      budget: category.budget != null ? String(category.budget) : '',
     },
   });
 
   const watchedColor = watch('color');
   const watchedIcon = watch('icon');
+
+  const {
+    spentAmount,
+    budgetConsumptionPercentage,
+    isLoading: isBudgetLoading,
+    error: budgetError,
+  } = useCategoryBudgetProgress(category.id, category.budget);
 
   useEffect(() => {
     if (isEditing) {
@@ -57,15 +72,23 @@ export function CategoryItem({
         label: category.label,
         color: category.color ?? '',
         icon: category.icon ?? '',
+        budget: category.budget != null ? String(category.budget) : '',
       });
     }
   }, [isEditing, category, reset]);
 
   const onSubmitEdit = async (data: CategoryEditFormData): Promise<void> => {
+    const trimmedBudget = data.budget.trim();
+    const hasBudgetValue = trimmedBudget !== '';
+    const parsedBudget = hasBudgetValue ? Number(trimmedBudget) : null;
+    if (hasBudgetValue && Number.isNaN(parsedBudget)) {
+      return;
+    }
     await onSaveEdit({
       label: data.label.trim(),
       color: data.color.trim() || undefined,
       icon: data.icon.trim() || undefined,
+      budget: parsedBudget,
     });
   };
 
@@ -89,6 +112,14 @@ export function CategoryItem({
                   className="h-8 max-w-xs"
                 />
                 <Input {...register('icon')} placeholder="e.g. 🍔" className="h-8 w-20" />
+                <Input
+                  {...register('budget')}
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="Budget"
+                  className="h-8 w-28"
+                />
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
@@ -155,23 +186,80 @@ export function CategoryItem({
     );
   }
 
+  const formattedBudget =
+    category.budget != null
+      ? category.budget.toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2,
+        })
+      : null;
+
+  const formattedSpent = spentAmount.toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+
+  const budgetBarColor =
+    budgetConsumptionPercentage >= 100
+      ? 'bg-destructive'
+      : budgetConsumptionPercentage >= 80
+        ? 'bg-amber-500'
+        : 'bg-emerald-500';
+
   return (
     <li className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
       <div className="flex flex-1 items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <p className="font-medium">
-            {category.icon && (
-              <span className="mr-1" aria-hidden="true">
-                {category.icon}
-              </span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <p className="font-medium">
+              {category.icon && (
+                <span className="mr-1" aria-hidden="true">
+                  {category.icon}
+                </span>
+              )}
+              {category.label}
+            </p>
+            {category.color && (
+              <span
+                className="inline-block h-3 w-3 rounded-full"
+                style={{ backgroundColor: category.color }}
+              />
             )}
-            {category.label}
-          </p>
-          {category.color && (
-            <span
-              className="inline-block h-3 w-3 rounded-full"
-              style={{ backgroundColor: category.color }}
-            />
+          </div>
+          {category.budget != null ? (
+            <div className="space-y-1">
+              <div className="flex items-center justify-between gap-4 text-[11px] text-muted-foreground">
+                <span>
+                  Monthly budget:{' '}
+                  {formattedBudget ? (
+                    <span className="font-medium text-foreground">€{formattedBudget}</span>
+                  ) : (
+                    '—'
+                  )}
+                </span>
+                <span>
+                  {isBudgetLoading
+                    ? 'Loading spending...'
+                    : budgetError
+                      ? 'Could not load spending'
+                      : spentAmount === 0
+                        ? 'No spending yet'
+                        : `Spent: €${formattedSpent}`}
+                </span>
+              </div>
+              {!isBudgetLoading && !budgetError && (
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`h-full ${budgetBarColor}`}
+                    style={{
+                      width: `${budgetConsumptionPercentage}%`,
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">No monthly budget set</p>
           )}
         </div>
         <div className="flex items-center gap-2">
