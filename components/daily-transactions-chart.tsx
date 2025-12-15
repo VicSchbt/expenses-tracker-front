@@ -17,6 +17,7 @@ import {
   getBills,
   getExpensesAndRefunds,
   getIncome,
+  getMonthlyBalance,
   getSavings,
   getSubscriptions,
 } from '@/lib/api';
@@ -70,6 +71,7 @@ async function fetchAllMonthlyTransactions(
 
 export function DailyTransactionsChart({ monthFilter, refreshKey }: DailyTransactionsChartProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [baseBalance, setBaseBalance] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,13 +80,32 @@ export function DailyTransactionsChart({ monthFilter, refreshKey }: DailyTransac
       try {
         setIsLoading(true);
         setError(null);
-        const [expensesAndRefunds, income, savings, bills, subscriptions] = await Promise.all([
-          fetchAllMonthlyTransactions(getExpensesAndRefunds, monthFilter),
-          fetchAllMonthlyTransactions(getIncome, monthFilter),
-          fetchAllMonthlyTransactions(getSavings, monthFilter),
-          fetchAllMonthlyTransactions(getBills, monthFilter),
-          fetchAllMonthlyTransactions(getSubscriptions, monthFilter),
-        ]);
+        const previousMonthDate = new Date(monthFilter.year, monthFilter.month - 2, 1);
+        const previousMonthYear = previousMonthDate.getFullYear();
+        const previousMonthMonth = previousMonthDate.getMonth() + 1;
+
+        const [monthlyBalance, expensesAndRefunds, income, savings, bills, subscriptions] =
+          await Promise.all([
+            getMonthlyBalance({
+              year: previousMonthYear,
+              month: previousMonthMonth,
+            }).catch(() => null),
+            fetchAllMonthlyTransactions(getExpensesAndRefunds, monthFilter),
+            fetchAllMonthlyTransactions(getIncome, monthFilter),
+            fetchAllMonthlyTransactions(getSavings, monthFilter),
+            fetchAllMonthlyTransactions(getBills, monthFilter),
+            fetchAllMonthlyTransactions(getSubscriptions, monthFilter),
+          ]);
+        if (monthlyBalance) {
+          const rawBaseBalance =
+            monthlyBalance.closingBalance ??
+            (monthlyBalance as any).balance ??
+            (monthlyBalance as any).netBalance ??
+            0;
+          setBaseBalance(typeof rawBaseBalance === 'number' ? rawBaseBalance : 0);
+        } else {
+          setBaseBalance(0);
+        }
         setTransactions([...expensesAndRefunds, ...income, ...savings, ...bills, ...subscriptions]);
       } catch (err) {
         const errorMessage =
@@ -129,7 +150,7 @@ export function DailyTransactionsChart({ monthFilter, refreshKey }: DailyTransac
       }
       dailyTotals[dayIndex] += sign * transaction.value;
     });
-    let runningTotal = 0;
+    let runningTotal = baseBalance;
     const cumulativeData: DailyChartPoint[] = dailyTotals.map((dayAmount, index) => {
       runningTotal += dayAmount;
       return {
@@ -138,7 +159,7 @@ export function DailyTransactionsChart({ monthFilter, refreshKey }: DailyTransac
       };
     });
     return cumulativeData;
-  }, [transactions, monthFilter.year, monthFilter.month]);
+  }, [transactions, monthFilter.year, monthFilter.month, baseBalance]);
 
   return (
     <section className="mb-8 w-full rounded-lg border bg-card p-4 shadow-sm">

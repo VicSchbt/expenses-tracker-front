@@ -1,5 +1,6 @@
 import type { Category } from './types/category';
 import type { MonthFilter } from './types/month-filter';
+import type { MonthlyBalance } from './types/monthly-balance';
 import type { SavingsGoal } from './types/savings-goal';
 import type { PaginatedTransactions, Transaction } from './types/transaction';
 
@@ -872,4 +873,35 @@ export async function getCategoryTransactions(
   });
 
   return handleResponse<Transaction[]>(response);
+}
+
+interface GetMonthlyBalanceParams {
+  year: number;
+  month: number;
+}
+
+export async function getMonthlyBalance(params: GetMonthlyBalanceParams): Promise<MonthlyBalance> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const searchParams = new URLSearchParams();
+  searchParams.append('year', params.year.toString());
+  searchParams.append('month', params.month.toString());
+
+  const queryString = searchParams.toString();
+  const url = `${API_BASE_URL}/transactions/balance/previous-month${
+    queryString ? `?${queryString}` : ''
+  }`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<MonthlyBalance>(response);
 }

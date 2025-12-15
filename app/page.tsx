@@ -9,6 +9,7 @@ import { BillList } from '@/components/bill-list';
 import { DailyTransactionsChart } from '@/components/daily-transactions-chart';
 import { IncomeList } from '@/components/income-list';
 import { MonthTabs } from '@/components/month-tabs';
+import { MonthlyBalanceSummary } from '@/components/monthly-balance-summary';
 import { SavingsList } from '@/components/savings-list';
 import { SubscriptionList } from '@/components/subscription-list';
 import { TransactionsList } from '@/components/transactions-list';
@@ -76,6 +77,7 @@ export default function Home() {
             <AddTransactionDialog onExpenseCreated={handleTransactionCreated} />
           </div>
           <MonthTabs monthFilter={monthFilter} onMonthFilterChange={setMonthFilter} />
+          <MonthlyBalanceSummary monthFilter={monthFilter} />
           <DailyTransactionsChart monthFilter={monthFilter} refreshKey={transactionsRefreshKey} />
           <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_2fr] lg:grid-cols-[1fr_2fr]">
             <div className="flex flex-col gap-12">
