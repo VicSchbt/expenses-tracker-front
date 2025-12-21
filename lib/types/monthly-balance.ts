@@ -10,3 +10,5 @@ export interface MonthlyBalance {
   totalIncome?: number;
   totalExpenses?: number;
 }
+
+

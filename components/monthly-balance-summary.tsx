@@ -79,3 +79,5 @@ export function MonthlyBalanceSummary({ monthFilter }: MonthlyBalanceSummaryProp
     </section>
   );
 }
+
+
