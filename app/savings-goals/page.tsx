@@ -1,14 +1,18 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 
 import { AppNavbar } from '@/components/app-navbar';
 import { AuthGuard } from '@/components/auth-guard';
-import { SavingsGoalsSection } from '@/components/savings-goals';
+import { SavingsGoalsSection, SavingsGoalTransactionsDialog } from '@/components/savings-goals';
 import { Button } from '@/components/ui/button';
 import { useSavingsGoals } from '@/hooks/use-savings-goals';
+import type { SavingsGoal } from '@/lib/types/savings-goal';
 
 export default function SavingsGoalsPage() {
+  const [selectedGoalForTransactions, setSelectedGoalForTransactions] =
+    useState<SavingsGoal | null>(null);
   const {
     savingsGoals,
     isLoading,
@@ -26,6 +30,14 @@ export default function SavingsGoalsPage() {
     handleCreateGoal,
     handleToggleAddGoalForm,
   } = useSavingsGoals();
+
+  const handleViewTransactions = (goal: SavingsGoal): void => {
+    setSelectedGoalForTransactions(goal);
+  };
+
+  const handleCloseTransactionsDialog = (): void => {
+    setSelectedGoalForTransactions(null);
+  };
 
   return (
     <AuthGuard>
@@ -66,8 +78,14 @@ export default function SavingsGoalsPage() {
             onCancelEdit={handleCancelEditGoal}
             onSaveEdit={handleSaveEditGoal}
             onDelete={handleDeleteGoal}
+            onViewTransactions={handleViewTransactions}
           />
         </main>
+        <SavingsGoalTransactionsDialog
+          goal={selectedGoalForTransactions}
+          isOpen={selectedGoalForTransactions !== null}
+          onClose={handleCloseTransactionsDialog}
+        />
       </div>
     </AuthGuard>
   );

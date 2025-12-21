@@ -40,12 +40,14 @@ export function AddSavingsForm({ onCancel, onSuccess }: AddSavingsFormProps) {
     value: string;
     recurrence: string;
     recurrenceEndDate: string;
+    isAuto: boolean;
   }>({
     goalId: '',
     date: '',
     value: '',
     recurrence: '',
     recurrenceEndDate: '',
+    isAuto: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -126,6 +128,7 @@ export function AddSavingsForm({ onCancel, onSuccess }: AddSavingsFormProps) {
           savingsForm.recurrenceEndDate && savingsForm.recurrenceEndDate !== ''
             ? savingsForm.recurrenceEndDate
             : undefined,
+        isAuto: savingsForm.isAuto || undefined,
       });
       onSuccess();
     } catch (error) {
@@ -247,6 +250,28 @@ export function AddSavingsForm({ onCancel, onSuccess }: AddSavingsFormProps) {
               </p>
             </div>
           )}
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <input
+                id="savings-is-auto"
+                type="checkbox"
+                checked={savingsForm.isAuto}
+                onChange={(event): void =>
+                  setSavingsForm((previous) => ({
+                    ...previous,
+                    isAuto: event.target.checked,
+                  }))
+                }
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              />
+              <Label htmlFor="savings-is-auto" className="cursor-pointer text-sm font-normal">
+                Auto-save
+              </Label>
+            </div>
+            <p className="pl-6 text-xs text-muted-foreground">
+              Mark if this saving is automatically transferred.
+            </p>
+          </div>
         </section>
         {submitError && <p className="text-sm text-destructive">{submitError}</p>}
         <div className="flex justify-end gap-2">

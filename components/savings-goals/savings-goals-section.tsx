@@ -19,6 +19,7 @@ interface SavingsGoalsSectionProps {
   onCancelEdit: () => void;
   onSaveEdit: (data: { name: string; targetAmount: number; dueDate?: string }) => Promise<void>;
   onDelete: (goalId: string) => Promise<void>;
+  onViewTransactions?: (goal: SavingsGoal) => void;
 }
 
 export function SavingsGoalsSection({
@@ -36,6 +37,7 @@ export function SavingsGoalsSection({
   onCancelEdit,
   onSaveEdit,
   onDelete,
+  onViewTransactions,
 }: SavingsGoalsSectionProps): JSX.Element {
   return (
     <section className="space-y-3 rounded-md border bg-muted/40 p-4">
@@ -65,6 +67,7 @@ export function SavingsGoalsSection({
           onCancelEdit={onCancelEdit}
           onSaveEdit={onSaveEdit}
           onDelete={onDelete}
+          onViewTransactions={onViewTransactions}
         />
       </div>
     </section>

@@ -51,6 +51,7 @@ interface CreateBillRequest {
   recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   recurrenceEndDate?: string;
   recurrenceCount?: number;
+  isAuto?: boolean;
 }
 
 interface CreateSubscriptionRequest {
@@ -60,6 +61,7 @@ interface CreateSubscriptionRequest {
   recurrence?: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
   recurrenceEndDate?: string;
   recurrenceCount?: number;
+  isAuto?: boolean;
 }
 
 interface CreateSavingRequest {
@@ -767,6 +769,23 @@ export async function deleteSavingsGoal(id: string): Promise<{ message: string }
   });
 
   return handleResponse<{ message: string }>(response);
+}
+
+export async function getSavingsGoalTransactions(goalId: string): Promise<Transaction[]> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/savings-goals/${goalId}/transactions`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<Transaction[]>(response);
 }
 
 export async function updateTransaction(

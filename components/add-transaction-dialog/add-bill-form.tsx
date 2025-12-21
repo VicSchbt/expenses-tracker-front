@@ -5,15 +5,19 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RecurrenceEndControls } from './recurrence-end-controls';
 import { createBill } from '@/lib/api';
+
+import { RecurrenceEndControls } from './recurrence-end-controls';
 
 interface AddBillFormProps {
   onCancel: () => void;
   onSuccess: () => void;
 }
 
-const RECURRENCE_OPTIONS: Array<{ value: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'; label: string }> = [
+const RECURRENCE_OPTIONS: Array<{
+  value: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  label: string;
+}> = [
   { value: 'DAILY', label: 'Daily' },
   { value: 'WEEKLY', label: 'Weekly' },
   { value: 'MONTHLY', label: 'Monthly' },
@@ -29,6 +33,7 @@ export function AddBillForm({ onCancel, onSuccess }: AddBillFormProps) {
     recurrenceEndMode: 'none' | 'endDate' | 'endCount';
     recurrenceEndDate: string;
     recurrenceCount: string;
+    isAuto: boolean;
   }>({
     label: '',
     date: '',
@@ -37,6 +42,7 @@ export function AddBillForm({ onCancel, onSuccess }: AddBillFormProps) {
     recurrenceEndMode: 'none',
     recurrenceEndDate: '',
     recurrenceCount: '',
+    isAuto: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -65,6 +71,7 @@ export function AddBillForm({ onCancel, onSuccess }: AddBillFormProps) {
             ? billForm.recurrenceEndDate
             : undefined,
         recurrenceCount: shouldUseEndCount ? Number(billForm.recurrenceCount) : undefined,
+        isAuto: billForm.isAuto || undefined,
       });
       onSuccess();
     } catch (error) {
@@ -175,6 +182,28 @@ export function AddBillForm({ onCancel, onSuccess }: AddBillFormProps) {
             }
           />
         )}
+        <div className="space-y-1">
+          <div className="flex items-center space-x-2">
+            <input
+              id="bill-is-auto"
+              type="checkbox"
+              checked={billForm.isAuto}
+              onChange={(event): void =>
+                setBillForm((previous) => ({
+                  ...previous,
+                  isAuto: event.target.checked,
+                }))
+              }
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            />
+            <Label htmlFor="bill-is-auto" className="cursor-pointer text-sm font-normal">
+              Auto-pay
+            </Label>
+          </div>
+          <p className="pl-6 text-xs text-muted-foreground">
+            Mark if this bill is automatically paid.
+          </p>
+        </div>
       </section>
       {submitError && <p className="text-sm text-destructive">{submitError}</p>}
       <div className="flex justify-end gap-2">
@@ -188,4 +217,3 @@ export function AddBillForm({ onCancel, onSuccess }: AddBillFormProps) {
     </form>
   );
 }
-

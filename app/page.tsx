@@ -44,13 +44,6 @@ export default function Home() {
       try {
         const months = await getAvailableMonths();
         setAvailableMonths(months);
-        if (months.length > 0) {
-          const firstMonth = months[0];
-          setMonthFilter({
-            year: firstMonth.year,
-            month: firstMonth.month,
-          });
-        }
         setIsAvailableMonthsInitialized(true);
       } catch {
         // Intentionally ignore error here, auth guard will handle auth issues.

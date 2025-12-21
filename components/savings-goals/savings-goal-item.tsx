@@ -21,6 +21,7 @@ interface SavingsGoalItemProps {
   onCancelEdit: () => void;
   onSaveEdit: (data: { name: string; targetAmount: number; dueDate?: string }) => Promise<void>;
   onDelete: (goalId: string) => Promise<void>;
+  onViewTransactions?: (goal: SavingsGoal) => void;
 }
 
 export function SavingsGoalItem({
@@ -32,6 +33,7 @@ export function SavingsGoalItem({
   onCancelEdit,
   onSaveEdit,
   onDelete,
+  onViewTransactions,
 }: SavingsGoalItemProps): JSX.Element {
   const {
     register,
@@ -130,7 +132,14 @@ export function SavingsGoalItem({
 
   return (
     <li className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
-      <div className="flex flex-1 flex-col gap-1">
+      <div
+        className="flex flex-1 cursor-pointer flex-col gap-1"
+        onClick={(): void => {
+          if (!isEditing) {
+            onViewTransactions?.(goal);
+          }
+        }}
+      >
         <div className="flex items-center justify-between gap-2">
           <p className="font-medium">{goal.name}</p>
           <p className="text-xs text-muted-foreground">
@@ -144,7 +153,7 @@ export function SavingsGoalItem({
           <p className="text-xs text-muted-foreground">{progress.toFixed(0)}% funded</p>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2" onClick={(e): void => e.stopPropagation()}>
         <Button type="button" variant="outline" size="sm" onClick={(): void => onStartEdit(goal)}>
           Edit
         </Button>

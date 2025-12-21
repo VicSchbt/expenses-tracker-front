@@ -12,6 +12,7 @@ interface SavingsGoalsListProps {
   onCancelEdit: () => void;
   onSaveEdit: (data: { name: string; targetAmount: number; dueDate?: string }) => Promise<void>;
   onDelete: (goalId: string) => Promise<void>;
+  onViewTransactions?: (goal: SavingsGoal) => void;
 }
 
 export function SavingsGoalsList({
@@ -24,6 +25,7 @@ export function SavingsGoalsList({
   onCancelEdit,
   onSaveEdit,
   onDelete,
+  onViewTransactions,
 }: SavingsGoalsListProps): JSX.Element {
   if (isLoading) {
     return <p className="text-sm text-muted-foreground">Loading savings goals...</p>;
@@ -50,6 +52,7 @@ export function SavingsGoalsList({
           onCancelEdit={onCancelEdit}
           onSaveEdit={onSaveEdit}
           onDelete={onDelete}
+          onViewTransactions={onViewTransactions}
         />
       ))}
     </ul>

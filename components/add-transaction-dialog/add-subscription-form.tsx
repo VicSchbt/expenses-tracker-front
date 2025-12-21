@@ -5,15 +5,19 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RecurrenceEndControls } from './recurrence-end-controls';
 import { createSubscription } from '@/lib/api';
+
+import { RecurrenceEndControls } from './recurrence-end-controls';
 
 interface AddSubscriptionFormProps {
   onCancel: () => void;
   onSuccess: () => void;
 }
 
-const RECURRENCE_OPTIONS: Array<{ value: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'; label: string }> = [
+const RECURRENCE_OPTIONS: Array<{
+  value: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+  label: string;
+}> = [
   { value: 'DAILY', label: 'Daily' },
   { value: 'WEEKLY', label: 'Weekly' },
   { value: 'MONTHLY', label: 'Monthly' },
@@ -29,6 +33,7 @@ export function AddSubscriptionForm({ onCancel, onSuccess }: AddSubscriptionForm
     recurrenceEndMode: 'none' | 'endDate' | 'endCount';
     recurrenceEndDate: string;
     recurrenceCount: string;
+    isAuto: boolean;
   }>({
     label: '',
     date: '',
@@ -37,6 +42,7 @@ export function AddSubscriptionForm({ onCancel, onSuccess }: AddSubscriptionForm
     recurrenceEndMode: 'none',
     recurrenceEndDate: '',
     recurrenceCount: '',
+    isAuto: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -65,6 +71,7 @@ export function AddSubscriptionForm({ onCancel, onSuccess }: AddSubscriptionForm
             ? subscriptionForm.recurrenceEndDate
             : undefined,
         recurrenceCount: shouldUseEndCount ? Number(subscriptionForm.recurrenceCount) : undefined,
+        isAuto: subscriptionForm.isAuto || undefined,
       });
       onSuccess();
     } catch (error) {
@@ -175,6 +182,28 @@ export function AddSubscriptionForm({ onCancel, onSuccess }: AddSubscriptionForm
             }
           />
         )}
+        <div className="space-y-1">
+          <div className="flex items-center space-x-2">
+            <input
+              id="subscription-is-auto"
+              type="checkbox"
+              checked={subscriptionForm.isAuto}
+              onChange={(event): void =>
+                setSubscriptionForm((previous) => ({
+                  ...previous,
+                  isAuto: event.target.checked,
+                }))
+              }
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            />
+            <Label htmlFor="subscription-is-auto" className="cursor-pointer text-sm font-normal">
+              Auto-pay
+            </Label>
+          </div>
+          <p className="pl-6 text-xs text-muted-foreground">
+            Mark if this subscription is automatically paid.
+          </p>
+        </div>
       </section>
       {submitError && <p className="text-sm text-destructive">{submitError}</p>}
       <div className="flex justify-end gap-2">
@@ -184,8 +213,7 @@ export function AddSubscriptionForm({ onCancel, onSuccess }: AddSubscriptionForm
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Saving...' : 'Save subscription'}
         </Button>
-        </div>
+      </div>
     </form>
   );
 }
-
