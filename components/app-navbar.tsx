@@ -53,14 +53,14 @@ export function AppNavbar() {
             Categories
           </Link>
           <Link
-            href="/savings-goals"
+            href="/savings"
             className={`rounded-md px-3 py-1.5 ${
               isCurrentPath('/savings-goals')
                 ? 'bg-primary text-primary-foreground'
                 : 'text-muted-foreground hover:bg-muted'
             }`}
           >
-            Savings goals
+            Savings
           </Link>
           <Button variant="outline" size="sm" type="button" onClick={handleLogoutClick}>
             Logout
