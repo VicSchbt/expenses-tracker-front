@@ -8,6 +8,7 @@ interface SavingsGoalsListProps {
   savingsGoals: SavingsGoal[];
 }
 
+// TODO: add loading state, error state and empty state
 const SavingsGoalsList = ({ savingsGoals }: SavingsGoalsListProps) => {
   return (
     <ul className="space-y-4">

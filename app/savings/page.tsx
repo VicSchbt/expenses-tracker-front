@@ -6,10 +6,11 @@ import { AppNavbar } from '@/components/app-navbar';
 import { AuthGuard } from '@/components/auth-guard';
 import SavingsGoalsList from '@/components/savings/SavingsGoalsList';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/utils';
 import { useSavingsStore } from '@/store/useSavingsStore';
 
 const SavingsPage = () => {
-  const { savingsGoals, fetchSavingsGoals } = useSavingsStore();
+  const { savingsGoals, fetchSavingsGoals, getTotalSavings } = useSavingsStore();
 
   useEffect(() => {
     async function fetchData() {
@@ -30,7 +31,7 @@ const SavingsPage = () => {
         <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 md:px-8">
           <header className="col-center">
             <p>I have</p>
-            <p className="text-2xl font-bold">24,000€</p>
+            <p className="text-2xl font-bold">{formatCurrency(getTotalSavings())}</p>
             <p>in my total goals</p>
           </header>
 
