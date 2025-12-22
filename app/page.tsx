@@ -15,7 +15,7 @@ import { SubscriptionList } from '@/components/subscription-list';
 import { TransactionsList } from '@/components/transactions-list';
 import { getAvailableMonths } from '@/lib/api';
 import type { MonthFilter } from '@/lib/types/month-filter';
-import { useUserStore } from '@/stores/use-user-store';
+import { useUserStore } from '@/store/use-user-store';
 
 export default function Home() {
   const [transactionsRefreshKey, setTransactionsRefreshKey] = useState(0);

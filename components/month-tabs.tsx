@@ -4,7 +4,7 @@ import type { ChangeEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { MonthFilter } from '@/lib/types/month-filter';
-import { useUserStore } from '@/stores/use-user-store';
+import { useUserStore } from '@/store/use-user-store';
 
 interface MonthTabsProps {
   monthFilter: MonthFilter;
