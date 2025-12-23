@@ -4,8 +4,8 @@ import React, { useEffect } from 'react';
 
 import { AppNavbar } from '@/components/app-navbar';
 import { AuthGuard } from '@/components/auth-guard';
+import AddSavingsGoalForm from '@/components/forms/AddSavingsGoalForm';
 import SavingsGoalsList from '@/components/savings/SavingsGoalsList';
-import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
 import { useSavingsStore } from '@/store/useSavingsStore';
 
@@ -37,7 +37,7 @@ const SavingsPage = () => {
 
           <section className="flex flex-col gap-2">
             <h1 className="text-2xl font-bold">My Goals</h1>
-            <Button variant="outline">Add A Goal</Button>
+            <AddSavingsGoalForm onSuccess={() => {}} />
           </section>
 
           <SavingsGoalsList savingsGoals={savingsGoals} />
