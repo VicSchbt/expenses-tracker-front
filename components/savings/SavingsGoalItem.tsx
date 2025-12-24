@@ -6,6 +6,7 @@ import { formatCurrency } from '@/lib/utils';
 
 import { Button } from '../ui/button';
 import { Progress } from '../ui/progress';
+import SavingsGoalItemDetails from './SavingsGoalItemDetails';
 
 interface SavingsGoalItemProps {
   goal: SavingsGoal;
@@ -33,9 +34,7 @@ const SavingsGoalItem = ({ goal }: SavingsGoalItemProps) => {
             </p>
             <Progress value={progress} className="h-2" />
           </div>
-          <Button variant="ghost" size="icon" className="cursor-pointer self-start">
-            <EllipsisVertical className="h-4 w-4" />
-          </Button>
+          <SavingsGoalItemDetails goal={goal} progress={progress} />
         </div>
       </div>
       <div className="flex w-full flex-row items-center gap-2">

@@ -1,11 +1,19 @@
 import { create } from 'zustand';
 
-import { createSaving, createSavingsGoal, getSavingsGoals } from '@/lib/api';
+import {
+  createSaving,
+  createSavingsGoal,
+  getSavingsGoals,
+  getSavingsGoalTransactions,
+} from '@/lib/api';
 import { SavingsGoal } from '@/lib/types/savings-goal';
+import { Transaction } from '@/lib/types/transaction';
 
 interface SavingsStore {
   savingsGoals: SavingsGoal[];
+  savingsGoalTransactions: Map<string, Transaction[]>;
   fetchSavingsGoals: () => Promise<void>;
+  fetchSavingsGoalTransactions: (goalId: string) => Promise<void>;
   getTotalSavings: () => number;
   isLoading: boolean;
   error: string | null;
@@ -26,6 +34,7 @@ interface SavingsStore {
 
 export const useSavingsStore = create<SavingsStore>((set, get) => ({
   savingsGoals: [],
+  savingsGoalTransactions: new Map(),
   isLoading: false,
   error: null,
 
@@ -37,6 +46,22 @@ export const useSavingsStore = create<SavingsStore>((set, get) => ({
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to fetch savings goals',
+        isLoading: false,
+      });
+    }
+  },
+
+  fetchSavingsGoalTransactions: async (goalId: string) => {
+    try {
+      set({ isLoading: true, error: null });
+      const transactions = await getSavingsGoalTransactions(goalId);
+      set({
+        savingsGoalTransactions: new Map(get().savingsGoalTransactions).set(goalId, transactions),
+        isLoading: false,
+      });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to fetch savings goal transactions',
         isLoading: false,
       });
     }
