@@ -1,31 +1,29 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 
 import { AuthGuard } from '@/components/auth-guard';
 import { CategoriesSection } from '@/components/categories/categories-section';
+import CategoriesList from '@/components/categories/CategoriesList';
 import AppNavbar from '@/components/navigation/AppNavbar';
 import { Button } from '@/components/ui/button';
-import { useCategories } from '@/hooks/use-categories';
+import { useCategoriesStore } from '@/store/useCategoriesStore';
 
-export default function CategoriesPage() {
-  const {
-    categories,
-    isLoading,
-    error,
-    isDeletingId,
-    editingCategoryId,
-    isUpdatingId,
-    isCreatingCategory,
-    createCategoryError,
-    isAddCategoryFormOpen,
-    handleDeleteCategory,
-    handleStartEditCategory,
-    handleCancelEditCategory,
-    handleSaveEditCategory,
-    handleCreateCategory,
-    handleToggleAddCategoryForm,
-  } = useCategories();
+const CategoriesPage = () => {
+  const { fetchCategories, categories } = useCategoriesStore();
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        await fetchCategories();
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    }
+
+    fetchData();
+  }, [fetchCategories]);
 
   return (
     <AuthGuard>
@@ -34,40 +32,15 @@ export default function CategoriesPage() {
         <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 md:px-8">
           <header className="flex items-center justify-between">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold">Manage categories</h1>
-              <p className="text-sm text-muted-foreground">
-                Create and organize the categories you use for your expenses and refunds.
-              </p>
+              <h1 className="text-3xl font-bold">Categories & Budget</h1>
             </div>
-            <Button asChild variant="outline">
-              <Link href="/">Back to dashboard</Link>
-            </Button>
           </header>
 
-          {error && (
-            <div className="rounded-md border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
-              {error}
-            </div>
-          )}
-
-          <CategoriesSection
-            categories={categories}
-            isLoading={isLoading}
-            isAddCategoryFormOpen={isAddCategoryFormOpen}
-            createCategoryError={createCategoryError}
-            isCreatingCategory={isCreatingCategory}
-            editingCategoryId={editingCategoryId}
-            isDeletingId={isDeletingId}
-            isUpdatingId={isUpdatingId}
-            onToggleAddCategoryForm={handleToggleAddCategoryForm}
-            onCreateCategory={handleCreateCategory}
-            onStartEdit={handleStartEditCategory}
-            onCancelEdit={handleCancelEditCategory}
-            onSaveEdit={handleSaveEditCategory}
-            onDelete={handleDeleteCategory}
-          />
+          <CategoriesList categories={categories} />
         </main>
       </div>
     </AuthGuard>
   );
-}
+};
+
+export default CategoriesPage;

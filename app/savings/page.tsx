@@ -22,7 +22,7 @@ const SavingsPage = () => {
     }
 
     fetchData();
-  }, []);
+  }, [fetchSavingsGoals]);
 
   return (
     <AuthGuard>
