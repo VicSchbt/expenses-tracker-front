@@ -44,7 +44,7 @@ const SavingsGoalItemDetails = ({ goal, progress }: SavingsGoalItemDetailsProps)
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{goal.name}</DialogTitle>
+          <DialogTitle className="text-center text-2xl font-bold">{goal.name}</DialogTitle>
           <DialogDescription className="flex w-full flex-col gap-2 py-4">
             <div className="col-center w-full">
               <p className="text-3xl font-bold">{formatCurrency(goal.currentAmount)} </p>
@@ -53,7 +53,7 @@ const SavingsGoalItemDetails = ({ goal, progress }: SavingsGoalItemDetailsProps)
             <Progress value={progress} className="h-2" />
           </DialogDescription>
         </DialogHeader>
-        <ol className="flex max-h-[40vh] flex-col gap-2 overflow-y-auto rounded-md border border-border p-2">
+        <ol className="flex max-h-[40vh] flex-col gap-2 overflow-y-auto">
           {transactions.map((transaction) => (
             <li
               key={transaction.id}
