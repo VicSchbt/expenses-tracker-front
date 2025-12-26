@@ -62,7 +62,7 @@ export default function Home() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20 md:pb-0">
         <AppNavbar />
         <main className="relative mx-auto px-4 py-8 md:px-8 md:py-12">
           <div className="mb-8 flex w-full justify-between">
