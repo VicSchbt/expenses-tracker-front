@@ -2,9 +2,9 @@
 
 import React, { useEffect } from 'react';
 
-import { AppNavbar } from '@/components/app-navbar';
 import { AuthGuard } from '@/components/auth-guard';
 import AddSavingsGoalForm from '@/components/forms/AddSavingsGoalForm';
+import AppNavbar from '@/components/navigation/AppNavbar';
 import SavingsGoalsList from '@/components/savings/SavingsGoalsList';
 import { formatCurrency } from '@/lib/utils';
 import { useSavingsStore } from '@/store/useSavingsStore';

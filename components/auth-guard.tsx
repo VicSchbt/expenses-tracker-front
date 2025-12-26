@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { getAuthToken } from '@/lib/api';
-import { useAuthStore } from '@/store/use-auth-store';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface AuthGuardProps {
   children: React.ReactNode;

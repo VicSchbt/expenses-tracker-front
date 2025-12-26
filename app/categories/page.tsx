@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 
-import { AppNavbar } from '@/components/app-navbar';
 import { AuthGuard } from '@/components/auth-guard';
 import { CategoriesSection } from '@/components/categories/categories-section';
+import AppNavbar from '@/components/navigation/AppNavbar';
 import { Button } from '@/components/ui/button';
 import { useCategories } from '@/hooks/use-categories';
 

@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react';
 
 import { AddTransactionDialog } from '@/components/add-transaction-dialog/index';
-import { AppNavbar } from '@/components/app-navbar';
 import { AuthGuard } from '@/components/auth-guard';
 import { BillList } from '@/components/bill-list';
 import { DailyTransactionsChart } from '@/components/daily-transactions-chart';
 import { IncomeList } from '@/components/income-list';
 import { MonthTabs } from '@/components/month-tabs';
 import { MonthlyBalanceSummary } from '@/components/monthly-balance-summary';
+import AppNavbar from '@/components/navigation/AppNavbar';
 import { SavingsList } from '@/components/savings-list';
 import { SubscriptionList } from '@/components/subscription-list';
 import { TransactionsList } from '@/components/transactions-list';
@@ -69,7 +69,7 @@ export default function Home() {
             <h1 className="text-center text-4xl font-bold">Expense Tracker</h1>
             <AddTransactionDialog onExpenseCreated={handleTransactionCreated} />
           </div>
-          <MonthTabs monthFilter={monthFilter} onMonthFilterChange={setMonthFilter} />
+          {/* <MonthTabs monthFilter={monthFilter} onMonthFilterChange={setMonthFilter} /> */}
           <MonthlyBalanceSummary monthFilter={monthFilter} />
           <DailyTransactionsChart monthFilter={monthFilter} refreshKey={transactionsRefreshKey} />
           <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_2fr] lg:grid-cols-[1fr_2fr]">
