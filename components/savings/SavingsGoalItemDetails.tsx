@@ -5,6 +5,7 @@ import { SavingsGoal } from '@/lib/types/savings-goal';
 import { cn, formatCurrency, formatDate } from '@/lib/utils';
 import { useSavingsStore } from '@/store/useSavingsStore';
 
+import TransactionLine from '../common/TransactionLine';
 import { Button } from '../ui/button';
 import {
   Dialog,
@@ -55,23 +56,7 @@ const SavingsGoalItemDetails = ({ goal, progress }: SavingsGoalItemDetailsProps)
         </DialogHeader>
         <ol className="flex max-h-[40vh] flex-col gap-2 overflow-y-auto">
           {transactions.map((transaction) => (
-            <li
-              key={transaction.id}
-              className="flex flex-row items-center justify-between rounded-md border border-border p-2"
-            >
-              <div className="flex flex-col">
-                <p className="font-medium">{transaction.label}</p>
-                <p className="text-xs text-muted-foreground">{formatDate(transaction.date)}</p>
-              </div>
-              <p
-                className={cn(
-                  'text-lg font-semibold',
-                  transaction.isPaid ? 'text-green-600' : 'text-muted-foreground',
-                )}
-              >
-                {formatCurrency(transaction.value)}
-              </p>
-            </li>
+            <TransactionLine key={transaction.id} transaction={transaction} />
           ))}
         </ol>
       </DialogContent>

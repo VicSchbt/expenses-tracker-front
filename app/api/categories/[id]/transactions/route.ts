@@ -4,9 +4,9 @@ import { NextResponse } from 'next/server';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function GET(request: NextRequest, context: RouteParams) {
@@ -28,8 +28,9 @@ export async function GET(request: NextRequest, context: RouteParams) {
       backendSearchParams.append('month', month);
     }
 
+    const params = await context.params;
     const queryString = backendSearchParams.toString();
-    const url = `${API_BASE_URL}/categories/${context.params.id}/transactions${
+    const url = `${API_BASE_URL}/categories/${params.id}/transactions${
       queryString ? `?${queryString}` : ''
     }`;
 

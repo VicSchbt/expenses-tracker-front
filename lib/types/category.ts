@@ -5,4 +5,6 @@ export interface Category {
   icon: string | null;
   color: string | null;
   budget: number | null;
+  isBudgetOverloaded: boolean;
+  budgetOverloadAmount: number | null;
 }

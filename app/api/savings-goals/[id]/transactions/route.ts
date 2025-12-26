@@ -4,9 +4,9 @@ import { NextResponse } from 'next/server';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function GET(request: NextRequest, context: RouteParams) {
@@ -16,7 +16,8 @@ export async function GET(request: NextRequest, context: RouteParams) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const url = `${API_BASE_URL}/savings-goals/${context.params.id}/transactions`;
+    const params = await context.params;
+    const url = `${API_BASE_URL}/savings-goals/${params.id}/transactions`;
 
     const response = await fetch(url, {
       method: 'GET',
