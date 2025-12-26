@@ -56,3 +56,20 @@ export function formatTransactionLabel(label: string, occurrenceNumber: string |
   }
   return `${label} ${occurrenceNumber}`;
 }
+
+// Calculate background color from green to red based on progress, and make it lighter using rgba with opacity
+// progress: 0 -> green, 100 -> red
+// We interpolate from green (#22c55e, rgb(34,197,94)) to red (#ef4444, rgb(239,68,68))
+// The result uses alpha for a lighter, softer look
+export function getCategoryProgressBarColor(progress: number) {
+  // Ensure progress between 0 and 100
+  const p = Math.max(0, Math.min(progress, 100)) / 100;
+
+  // Green: 34,197,94   Red: 239,68,68
+  const r = Math.round(34 + (239 - 34) * p);
+  const g = Math.round(197 + (68 - 197) * p);
+  const b = Math.round(94 + (68 - 94) * p);
+
+  // Use an alpha (opacity) value less than 1 for a lighter color, e.g. 0.25
+  return `rgba(${r},${g},${b},0.25)`;
+}
