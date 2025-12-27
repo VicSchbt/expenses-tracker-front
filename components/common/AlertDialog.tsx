@@ -17,13 +17,21 @@ interface AlertDialogProps {
   description: string;
   onConfirm: () => void;
   onCancel: () => void;
+  variant?: 'destructive' | 'outline';
 }
 
-const AlertDialog = ({ trigger, title, description, onConfirm, onCancel }: AlertDialogProps) => {
+const AlertDialog = ({
+  trigger,
+  title,
+  description,
+  onConfirm,
+  onCancel,
+  variant = 'destructive',
+}: AlertDialogProps) => {
   return (
     <AlertDialogRoot>
       <AlertDialogTrigger asChild>
-        <Button variant="outline">{trigger}</Button>
+        <Button variant={variant}>{trigger}</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
