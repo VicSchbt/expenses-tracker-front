@@ -18,7 +18,7 @@ import {
   DialogTrigger,
 } from '../ui/dialog';
 import { Progress } from '../ui/progress';
-import EditCategoryForm from './EditCategoryForm';
+import CategoryForm from './CategoryForm';
 
 interface CategoryDetailsProps {
   category: Category;
@@ -139,9 +139,10 @@ const CategoryDetails = ({ category, progress }: CategoryDetailsProps) => {
             </DialogFooter>
           </>
         ) : (
-          <EditCategoryForm
+          <CategoryForm
+            mode="edit"
             category={category}
-            isUpdating={isUpdating}
+            isSubmitting={isUpdating}
             error={error}
             onSubmit={handleEditCategory}
             onCancel={handleCancelEdit}

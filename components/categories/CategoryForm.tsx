@@ -8,19 +8,20 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 
-interface EditCategoryFormData {
+interface CategoryFormData {
   label: string;
   color: string;
   icon: string;
   budget: string;
 }
 
-interface EditCategoryFormProps {
-  category: Category;
-  isUpdating: boolean;
+interface CategoryFormProps {
+  mode: 'create' | 'edit';
+  category?: Category;
+  isSubmitting: boolean;
   error: string | null;
   onSubmit: (data: {
-    label?: string;
+    label: string;
     color?: string | null;
     icon?: string | null;
     budget?: number | null;
@@ -28,13 +29,15 @@ interface EditCategoryFormProps {
   onCancel: () => void;
 }
 
-const EditCategoryForm = ({
+export function CategoryForm({
+  mode,
   category,
-  isUpdating,
+  isSubmitting,
   error,
   onSubmit,
   onCancel,
-}: EditCategoryFormProps) => {
+}: CategoryFormProps) {
+  const isEditMode = mode === 'edit';
   const {
     register,
     handleSubmit,
@@ -42,12 +45,12 @@ const EditCategoryForm = ({
     setValue,
     reset,
     formState: { errors },
-  } = useForm<EditCategoryFormData>({
+  } = useForm<CategoryFormData>({
     defaultValues: {
-      label: category.label,
-      color: category.color ?? '',
-      icon: category.icon ?? '',
-      budget: category.budget != null ? String(category.budget) : '',
+      label: category?.label ?? '',
+      color: category?.color ?? '',
+      icon: category?.icon ?? '',
+      budget: category?.budget != null ? String(category?.budget) : '',
     },
   });
 
@@ -55,15 +58,17 @@ const EditCategoryForm = ({
   const watchedIcon = watch('icon');
 
   useEffect(() => {
-    reset({
-      label: category.label,
-      color: category.color ?? '',
-      icon: category.icon ?? '',
-      budget: category.budget != null ? String(category.budget) : '',
-    });
-  }, [category, reset]);
+    if (isEditMode && category) {
+      reset({
+        label: category.label,
+        color: category.color ?? '',
+        icon: category.icon ?? '',
+        budget: category.budget != null ? String(category.budget) : '',
+      });
+    }
+  }, [category, reset, isEditMode]);
 
-  const onSubmitForm = async (data: EditCategoryFormData): Promise<void> => {
+  const onSubmitForm = async (data: CategoryFormData): Promise<void> => {
     const trimmedBudget = data.budget.trim();
     const hasBudgetValue = trimmedBudget !== '';
     const parsedBudget = hasBudgetValue ? Number(trimmedBudget) : null;
@@ -76,17 +81,24 @@ const EditCategoryForm = ({
       icon: data.icon.trim() || null,
       budget: parsedBudget,
     });
-    reset();
+    if (isEditMode) {
+      reset();
+    }
   };
 
+  const idPrefix = isEditMode ? 'edit' : 'create';
+
   return (
-    <form className="space-y-4 pt-4" onSubmit={handleSubmit(onSubmitForm)}>
+    <form
+      className={`space-y-4 pt-4 ${!isEditMode ? 'border-t' : ''}`}
+      onSubmit={handleSubmit(onSubmitForm)}
+    >
       <div className="space-y-1">
-        <Label htmlFor="edit-category-label" className="text-sm font-medium">
+        <Label htmlFor={`${idPrefix}-category-label`} className="text-sm font-medium">
           Category name
         </Label>
         <Input
-          id="edit-category-label"
+          id={`${idPrefix}-category-label`}
           {...register('label', {
             required: 'Category label is required',
             validate: (value) => {
@@ -102,12 +114,12 @@ const EditCategoryForm = ({
         {errors.label && <p className="text-sm text-destructive">{errors.label.message}</p>}
       </div>
       <div className="space-y-1">
-        <Label htmlFor="edit-category-icon" className="text-sm font-medium">
+        <Label htmlFor={`${idPrefix}-category-icon`} className="text-sm font-medium">
           Icon (emoji, optional)
         </Label>
         <div className="space-y-2">
           <Input
-            id="edit-category-icon"
+            id={`${idPrefix}-category-icon`}
             {...register('icon')}
             placeholder="e.g. 🍔"
             className="h-8"
@@ -130,11 +142,11 @@ const EditCategoryForm = ({
         </div>
       </div>
       <div className="space-y-1">
-        <Label htmlFor="edit-category-budget" className="text-sm font-medium">
+        <Label htmlFor={`${idPrefix}-category-budget`} className="text-sm font-medium">
           Monthly budget (optional)
         </Label>
         <Input
-          id="edit-category-budget"
+          id={`${idPrefix}-category-budget`}
           type="number"
           step="0.01"
           min="0"
@@ -147,13 +159,13 @@ const EditCategoryForm = ({
         </p>
       </div>
       <div className="space-y-1">
-        <Label htmlFor="edit-category-color" className="text-sm font-medium">
+        <Label htmlFor={`${idPrefix}-category-color`} className="text-sm font-medium">
           Color (optional)
         </Label>
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <input
-              id="edit-category-color"
+              id={`${idPrefix}-category-color`}
               type="color"
               {...register('color')}
               className="h-8 w-10 cursor-pointer rounded border bg-transparent p-0"
@@ -178,15 +190,29 @@ const EditCategoryForm = ({
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isUpdating}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            if (!isEditMode) reset();
+            onCancel();
+          }}
+          disabled={isSubmitting}
+        >
           Cancel
         </Button>
-        <Button type="submit" disabled={isUpdating}>
-          {isUpdating ? 'Saving...' : 'Save changes'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting
+            ? isEditMode
+              ? 'Saving...'
+              : 'Creating...'
+            : isEditMode
+              ? 'Save changes'
+              : 'Create category'}
         </Button>
       </div>
     </form>
   );
-};
+}
 
-export default EditCategoryForm;
+export default CategoryForm;
