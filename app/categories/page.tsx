@@ -1,13 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
 
 import { AuthGuard } from '@/components/auth-guard';
-import { CategoriesSection } from '@/components/categories/categories-section';
+import AddCategoryDialog from '@/components/categories/AddCategoryDialog';
 import CategoriesList from '@/components/categories/CategoriesList';
 import AppNavbar from '@/components/navigation/AppNavbar';
-import { Button } from '@/components/ui/button';
 import { useCategoriesStore } from '@/store/useCategoriesStore';
 
 const CategoriesPage = () => {
@@ -35,7 +33,7 @@ const CategoriesPage = () => {
               <h1 className="text-3xl font-bold">Categories & Budget</h1>
             </div>
           </header>
-
+          <AddCategoryDialog />
           <CategoriesList categories={categories} />
         </main>
       </div>

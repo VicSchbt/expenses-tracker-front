@@ -29,14 +29,14 @@ interface CategoryFormProps {
   onCancel: () => void;
 }
 
-export function CategoryForm({
+const CategoryForm = ({
   mode,
   category,
   isSubmitting,
   error,
   onSubmit,
   onCancel,
-}: CategoryFormProps) {
+}: CategoryFormProps) => {
   const isEditMode = mode === 'edit';
   const {
     register,
@@ -213,6 +213,6 @@ export function CategoryForm({
       </div>
     </form>
   );
-}
+};
 
 export default CategoryForm;

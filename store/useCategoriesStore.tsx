@@ -30,9 +30,9 @@ interface CategoriesStore {
 
   createNewCategory: (data: {
     label: string;
-    color?: string;
-    icon?: string;
-    budget?: number;
+    color?: string | null;
+    icon?: string | null;
+    budget?: number | null;
   }) => Promise<void>;
 
   updateExistingCategory: (
@@ -98,9 +98,9 @@ export const useCategoriesStore = create<CategoriesStore>((set, get) => ({
 
   createNewCategory: async (data: {
     label: string;
-    color?: string;
-    icon?: string;
-    budget?: number;
+    color?: string | null;
+    icon?: string | null;
+    budget?: number | null;
   }) => {
     try {
       set({ isCreatingCategory: true, createCategoryError: null });
@@ -108,7 +108,7 @@ export const useCategoriesStore = create<CategoriesStore>((set, get) => ({
         label: data.label,
         color: data.color ?? null,
         icon: data.icon ?? null,
-        budget: data.budget,
+        budget: data.budget ?? undefined,
       });
       set({
         categories: [...get().categories, newCategory],
