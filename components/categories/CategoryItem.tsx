@@ -1,7 +1,7 @@
-import { MoreVertical, PiggyBank } from 'lucide-react';
 import React, { useEffect, useMemo } from 'react';
 
 import { Category } from '@/lib/types/category';
+import { MonthFilter } from '@/lib/types/month-filter';
 import { formatCurrency, getCategoryProgressBarColor } from '@/lib/utils';
 import { useCategoriesStore } from '@/store/useCategoriesStore';
 
@@ -11,18 +11,19 @@ import { getCategoryItemInfo } from './utils';
 
 interface CategoryItemProps {
   category: Category;
+  monthFilter: MonthFilter;
 }
 
-const CategoryItem = ({ category }: CategoryItemProps) => {
+const CategoryItem = ({ category, monthFilter }: CategoryItemProps) => {
   const { fetchCategoryTransactions, isLoading, error, categoryTransactions } =
     useCategoriesStore();
 
   useEffect(() => {
     void fetchCategoryTransactions(category.id, {
-      year: new Date().getFullYear(),
-      month: new Date().getMonth() + 1,
+      year: monthFilter.year,
+      month: monthFilter.month,
     });
-  }, [category.id, fetchCategoryTransactions]);
+  }, [category.id, fetchCategoryTransactions, monthFilter.year, monthFilter.month]);
 
   const transactions = useMemo(() => {
     const transactions = categoryTransactions.get(category.id) || [];
