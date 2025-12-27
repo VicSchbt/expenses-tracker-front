@@ -45,7 +45,7 @@ interface CategoriesStore {
     },
   ) => Promise<void>;
 
-  deleteExistingCategory: (categoryId: string) => Promise<void>;
+  deleteExistingCategory: (categoryId: string) => Promise<boolean>;
 
   setEditingCategoryId: (categoryId: string | null) => void;
   setIsAddCategoryFormOpen: (isOpen: boolean) => void;
@@ -154,13 +154,6 @@ export const useCategoriesStore = create<CategoriesStore>((set, get) => ({
   },
 
   deleteExistingCategory: async (categoryId: string) => {
-    const isConfirmed = window.confirm(
-      'Are you sure you want to delete this category? Existing transactions will keep their amounts but lose this category.',
-    );
-    if (!isConfirmed) {
-      return;
-    }
-
     try {
       set({ isDeletingId: categoryId, error: null });
       await deleteCategory(categoryId);
@@ -175,6 +168,7 @@ export const useCategoriesStore = create<CategoriesStore>((set, get) => ({
       });
       throw error;
     }
+    return true;
   },
 
   setEditingCategoryId: (categoryId: string | null) => {

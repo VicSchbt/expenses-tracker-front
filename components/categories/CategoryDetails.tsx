@@ -5,12 +5,14 @@ import { Category } from '@/lib/types/category';
 import { formatCurrency } from '@/lib/utils';
 import { useCategoriesStore } from '@/store/useCategoriesStore';
 
+import AlertDialog from '../common/AlertDialog';
 import TransactionLine from '../common/TransactionLine';
 import { Button } from '../ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -24,12 +26,17 @@ interface CategoryDetailsProps {
 
 const CategoryDetails = ({ category, progress }: CategoryDetailsProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isLoading, error, categoryTransactions } = useCategoriesStore();
+  const { isLoading, error, categoryTransactions, deleteExistingCategory } = useCategoriesStore();
 
   const transactions = useMemo(() => {
     const transactions = categoryTransactions.get(category.id) || [];
     return transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [categoryTransactions]);
+
+  const handleDeleteCategory = () => {
+    deleteExistingCategory(category.id);
+    setIsOpen(false);
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -61,13 +68,27 @@ const CategoryDetails = ({ category, progress }: CategoryDetailsProps) => {
             )}
           </div>
         </DialogHeader>
-        {category.budget != null && (
+        {transactions.length > 0 ? (
           <ol className="flex max-h-[40vh] flex-col gap-2 overflow-y-auto">
             {transactions.map((transaction) => (
               <TransactionLine key={transaction.id} transaction={transaction} />
             ))}
           </ol>
+        ) : (
+          <p className="text-sm text-muted-foreground">No transactions found</p>
         )}
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Edit Category
+          </Button>
+          <AlertDialog
+            trigger="Delete Category"
+            title="Delete Category"
+            description="Are you sure you want to delete this category? This action cannot be undone."
+            onConfirm={handleDeleteCategory}
+            onCancel={() => setIsOpen(false)}
+          />
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
