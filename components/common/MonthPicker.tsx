@@ -3,7 +3,7 @@ import type { ChangeEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import type { MonthFilter } from '@/lib/types/month-filter';
 
-interface MonthTabsProps {
+interface MonthPickerProps {
   monthFilter: MonthFilter;
   onMonthFilterChange: (monthFilter: MonthFilter) => void;
 }
@@ -13,7 +13,7 @@ function formatMonthValue(year: number, month: number): string {
   return `${year}-${monthString}`;
 }
 
-export function MonthTabs({ monthFilter, onMonthFilterChange }: MonthTabsProps) {
+const MonthPicker = ({ monthFilter, onMonthFilterChange }: MonthPickerProps) => {
   const selectedValue = formatMonthValue(monthFilter.year, monthFilter.month);
   const handleMonthInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const value = event.target.value;
@@ -45,4 +45,6 @@ export function MonthTabs({ monthFilter, onMonthFilterChange }: MonthTabsProps) 
       />
     </div>
   );
-}
+};
+
+export default MonthPicker;

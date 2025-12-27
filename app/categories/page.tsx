@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { AuthGuard } from '@/components/auth-guard';
 import AddCategoryDialog from '@/components/categories/AddCategoryDialog';
 import CategoriesList from '@/components/categories/CategoriesList';
-import { MonthTabs } from '@/components/month-tabs';
+import MonthPicker from '@/components/common/MonthPicker';
 import AppNavbar from '@/components/navigation/AppNavbar';
 import { MonthFilter } from '@/lib/types/month-filter';
 import { formatCurrency } from '@/lib/utils';
@@ -41,7 +41,7 @@ const CategoriesPage = () => {
             <div className="space-y-2">
               <h1 className="text-3xl font-bold">Categories & Budget</h1>
             </div>
-            <MonthTabs monthFilter={monthFilter} onMonthFilterChange={setMonthFilter} />
+            <MonthPicker monthFilter={monthFilter} onMonthFilterChange={setMonthFilter} />
             <div className="flex w-full flex-col gap-2 md:flex-row">
               <div className="flex-1 rounded-md border p-2">
                 <p className="text-sm text-muted-foreground">Total budget:</p>
