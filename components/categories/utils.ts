@@ -39,3 +39,9 @@ export const getCategoryItemInfo = (
 
   return { totalSpent, totalRefunds, progress, bgColor, isBudgetOverloaded, budgetOverloadAmount };
 };
+
+export const getTotalBudget = (categories: Category[]) => {
+  return categories.reduce((acc, category) => {
+    return acc + (category.budget ?? 0);
+  }, 0);
+};

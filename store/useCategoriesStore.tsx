@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { getTotalBudget } from '@/components/categories/utils';
 import {
   createCategory,
   deleteCategory,
@@ -21,6 +22,7 @@ interface CategoriesStore {
   isCreatingCategory: boolean;
   createCategoryError: string | null;
   isAddCategoryFormOpen: boolean;
+  totalBudget: number;
 
   fetchCategories: () => Promise<void>;
   fetchCategoryTransactions: (
@@ -48,7 +50,6 @@ interface CategoriesStore {
   deleteExistingCategory: (categoryId: string) => Promise<boolean>;
 
   setEditingCategoryId: (categoryId: string | null) => void;
-  setIsAddCategoryFormOpen: (isOpen: boolean) => void;
   setCreateCategoryError: (error: string | null) => void;
 }
 
@@ -63,12 +64,12 @@ export const useCategoriesStore = create<CategoriesStore>((set, get) => ({
   isCreatingCategory: false,
   createCategoryError: null,
   isAddCategoryFormOpen: false,
-
+  totalBudget: 0,
   fetchCategories: async () => {
     try {
       set({ isLoading: true, error: null });
       const categories = await getCategories();
-      set({ categories, isLoading: false });
+      set({ categories, totalBudget: getTotalBudget(categories), isLoading: false });
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to fetch categories',
@@ -112,6 +113,7 @@ export const useCategoriesStore = create<CategoriesStore>((set, get) => ({
       });
       set({
         categories: [...get().categories, newCategory],
+        totalBudget: getTotalBudget(get().categories),
         isCreatingCategory: false,
         isAddCategoryFormOpen: false,
       });
@@ -143,6 +145,7 @@ export const useCategoriesStore = create<CategoriesStore>((set, get) => ({
         ),
         editingCategoryId: null,
         isUpdatingId: null,
+        totalBudget: getTotalBudget(get().categories),
       });
     } catch (error) {
       set({
@@ -159,6 +162,7 @@ export const useCategoriesStore = create<CategoriesStore>((set, get) => ({
       await deleteCategory(categoryId);
       set({
         categories: get().categories.filter((category) => category.id !== categoryId),
+        totalBudget: getTotalBudget(get().categories),
         isDeletingId: null,
       });
     } catch (error) {
@@ -173,13 +177,6 @@ export const useCategoriesStore = create<CategoriesStore>((set, get) => ({
 
   setEditingCategoryId: (categoryId: string | null) => {
     set({ editingCategoryId: categoryId });
-  },
-
-  setIsAddCategoryFormOpen: (isOpen: boolean) => {
-    set({
-      isAddCategoryFormOpen: isOpen,
-      createCategoryError: isOpen ? null : get().createCategoryError,
-    });
   },
 
   setCreateCategoryError: (error: string | null) => {

@@ -35,7 +35,7 @@ const AddCategoryDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button variant="outline">
           <PlusIcon className="h-4 w-4" />
           Add Category
         </Button>
