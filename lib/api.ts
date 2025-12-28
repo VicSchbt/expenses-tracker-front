@@ -924,3 +924,20 @@ export async function getMonthlyBalance(params: GetMonthlyBalanceParams): Promis
 
   return handleResponse<MonthlyBalance>(response);
 }
+
+export async function getRecentTransactions(): Promise<PaginatedTransactions> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/transactions/recent`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return handleResponse<PaginatedTransactions>(response);
+}

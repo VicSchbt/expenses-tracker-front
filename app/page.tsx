@@ -5,14 +5,10 @@ import { useEffect, useState } from 'react';
 import { AddTransactionDialog } from '@/components/add-transaction-dialog/index';
 import { AuthGuard } from '@/components/auth-guard';
 import { BillList } from '@/components/bill-list';
-import { MonthTabs } from '@/components/common/MonthPicker';
-import { DailyTransactionsChart } from '@/components/daily-transactions-chart';
-import { IncomeList } from '@/components/income-list';
+import MonthTabs from '@/components/common/MonthPicker';
 import { MonthlyBalanceSummary } from '@/components/monthly-balance-summary';
 import AppNavbar from '@/components/navigation/AppNavbar';
-import { SavingsList } from '@/components/savings-list';
-import { SubscriptionList } from '@/components/subscription-list';
-import { TransactionsList } from '@/components/transactions-list';
+import RecentTransactions from '@/components/transactions/recent/RecentTransactions';
 import { getAvailableMonths } from '@/lib/api';
 import type { MonthFilter } from '@/lib/types/month-filter';
 import { useUserStore } from '@/store/use-user-store';
@@ -71,7 +67,8 @@ export default function Home() {
           </div>
           {/* <MonthTabs monthFilter={monthFilter} onMonthFilterChange={setMonthFilter} /> */}
           <MonthlyBalanceSummary monthFilter={monthFilter} />
-          <DailyTransactionsChart monthFilter={monthFilter} refreshKey={transactionsRefreshKey} />
+          <RecentTransactions />
+          {/* <DailyTransactionsChart monthFilter={monthFilter} refreshKey={transactionsRefreshKey} />
           <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_2fr] lg:grid-cols-[1fr_2fr]">
             <div className="flex flex-col gap-12">
               <IncomeList
@@ -102,7 +99,7 @@ export default function Home() {
                 onTransactionCreated={handleTransactionCreated}
               />
             </div>
-          </div>
+          </div> */}
         </main>
       </div>
     </AuthGuard>
