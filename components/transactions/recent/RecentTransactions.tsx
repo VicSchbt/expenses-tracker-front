@@ -5,7 +5,7 @@ import RecentDataTable from './RecentDataTable';
 const RecentTransactions = () => {
   return (
     <section>
-      <h2 className="text-2xl font-bold">Recent Transactions</h2>
+      <h2 className="mb-2 text-2xl font-bold">Recent Transactions</h2>
       <RecentDataTable />
     </section>
   );

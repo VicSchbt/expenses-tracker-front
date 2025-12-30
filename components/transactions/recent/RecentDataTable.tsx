@@ -9,37 +9,31 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useCategoriesStore } from '@/store/useCategoriesStore';
 import { useTransactionsStore } from '@/store/useTransactionsStore';
 
 import createRecentTransactionsColumns from './RecentColumns';
-import { findCategoryById } from './utils';
 
 const RecentDataTable = () => {
   const { recentTransactions, fetchRecentTransactions, isLoading, error } = useTransactionsStore();
-  const { categories, fetchCategories } = useCategoriesStore();
 
   useEffect(() => {
     async function fetchData() {
       try {
-        await Promise.all([fetchCategories(), fetchRecentTransactions()]);
+        await fetchRecentTransactions();
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Failed to load recent transactions';
       }
     }
     void fetchData();
-  }, [fetchRecentTransactions, fetchCategories]);
+  }, [fetchRecentTransactions]);
 
   const tableData = useMemo(() => {
     if (!recentTransactions || !Array.isArray(recentTransactions)) {
       return [];
     }
-    return recentTransactions.map((transaction) => ({
-      ...transaction,
-      category: findCategoryById(transaction.categoryId, categories),
-    }));
-  }, [recentTransactions, categories]);
+    return recentTransactions;
+  }, [recentTransactions]);
 
   const columns = useMemo(() => {
     return createRecentTransactionsColumns();
