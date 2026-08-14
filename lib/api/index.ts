@@ -1,15 +1,17 @@
 import { Transaction } from "../types";
 
 const API_BASE_URL = "/api";
+const EXPENSE_SUFFIX = "expenses";
 
-interface CreateTransactionRequest {
+interface CreateExpenseRequest {
   label: string;
   date: Date;
   value: number;
+  categoryId?: string | null;
 }
 
-export async function getTransactions(): Promise<Transaction[]> {
-  const response = await fetch(`${API_BASE_URL}/transactions`, {
+export async function getExpenses(): Promise<Transaction[]> {
+  const response = await fetch(`${API_BASE_URL}/${EXPENSE_SUFFIX}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -18,10 +20,10 @@ export async function getTransactions(): Promise<Transaction[]> {
   return response.json() as Promise<Transaction[]>;
 }
 
-export async function createTransaction(
-  request: CreateTransactionRequest,
+export async function createExpense(
+  request: CreateExpenseRequest,
 ): Promise<Transaction> {
-  const response = await fetch(`${API_BASE_URL}/transactions`, {
+  const response = await fetch(`${API_BASE_URL}/${EXPENSE_SUFFIX}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

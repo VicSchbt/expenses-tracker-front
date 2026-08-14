@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransactionsStore } from "@/store/useTransactionsStore";
+import { useExpenseStore } from "@/store/useExpensesStore";
 import { useEffect, useState } from "react";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const Home = () => {
-  const { transactions, getTransactions, createTransaction } =
-    useTransactionsStore();
+  const { expenses, getExpenses, createExpense } = useExpenseStore();
   const [label, setLabel] = useState("");
   const [date, setDate] = useState("");
   const [value, setValue] = useState(0);
@@ -17,7 +16,7 @@ const Home = () => {
   useEffect(() => {
     function fetchData() {
       try {
-        getTransactions();
+        getExpenses();
       } catch (err) {
         const errorMessage =
           err instanceof Error
@@ -26,7 +25,7 @@ const Home = () => {
       }
     }
     void fetchData();
-  }, [getTransactions]);
+  }, [getExpenses]);
 
   const handleSubmit = async () => {
     const data = {
@@ -34,7 +33,7 @@ const Home = () => {
       date: new Date(date),
       value,
     };
-    await createTransaction(data);
+    await createExpense(data);
     setLabel("");
     setDate("");
     setValue(0);
@@ -82,7 +81,7 @@ const Home = () => {
       </form>
 
       <ul>
-        {transactions.map((transaction) => {
+        {expenses.map((transaction) => {
           return (
             <li key={transaction.id}>
               {transaction.label} - {transaction.value} -{" "}

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const SUFFIX_URL = "expenses";
 
 export async function GET() {
   try {
-    const url = `${API_BASE_URL}/transactions`;
+    const url = `${API_BASE_URL}/${SUFFIX_URL}`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log(body);
 
-    const url = `${API_BASE_URL}/transactions`;
+    const url = `${API_BASE_URL}/${SUFFIX_URL}`;
 
     const response = await fetch(url, {
       method: "POST",
