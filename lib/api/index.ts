@@ -4,8 +4,8 @@ const API_BASE_URL = "/api";
 
 interface CreateTransactionRequest {
   label: string;
-  date: string;
-  amount: number;
+  date: Date;
+  value: number;
 }
 
 export async function getTransactions(): Promise<Transaction[]> {

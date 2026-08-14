@@ -1,16 +1,23 @@
 "use client";
 
 import { useTransactionsStore } from "@/store/useTransactionsStore";
-import Form from "next/form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Button } from "@/components/ui/button";
+
+import { Input } from "@/components/ui/input";
 
 const Home = () => {
-  const { transactions, getTransactions } = useTransactionsStore();
+  const { transactions, getTransactions, createTransaction } =
+    useTransactionsStore();
+  const [label, setLabel] = useState("");
+  const [date, setDate] = useState("");
+  const [value, setValue] = useState(0);
 
   useEffect(() => {
-    async function fetchData() {
+    function fetchData() {
       try {
-        await getTransactions();
+        getTransactions();
       } catch (err) {
         const errorMessage =
           err instanceof Error
@@ -21,52 +28,70 @@ const Home = () => {
     void fetchData();
   }, [getTransactions]);
 
+  const handleSubmit = async () => {
+    const data = {
+      label,
+      date: new Date(date),
+      value,
+    };
+    await createTransaction(data);
+    setLabel("");
+    setDate("");
+    setValue(0);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        {/* <Form action={createTransaction} className="space-y-6">
-        <div>
-          <label htmlFor="label" className="block text-lg mb-2">
-            Label
-          </label>
-          <input
-            type="text"
-            id="label"
-            name="label"
-            placeholder="Enter your transaction label"
-            className="w-full px-4 py-2 border rounded-lg"
+    <main className="flex flex-col md:flex-row">
+      <form>
+        <Field>
+          <FieldLabel htmlFor="create-transaction-label">Label</FieldLabel>
+          <Input
+            id="create-transaction-label"
+            placeholder="Groceries"
+            required
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
           />
-        </div>
-        <div>
-          <label htmlFor="amount" className="block text-lg mb-2">
-            Amount
-          </label>
-          <input
-            id="amount"
-            name="amount"
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="create-transaction-date">Date</FieldLabel>
+          <Input
+            id="create-transaction-date"
+            type="date"
+            required
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="create-transaction-value">Value</FieldLabel>
+          <Input
+            id="create-transaction-value"
             type="number"
-            className="w-full px-4 py-2 border rounded-lg"
+            min="0"
+            step="0.01"
+            placeholder="12.97"
+            required
+            value={value}
+            onChange={(e) => setValue(+e.target.value)}
           />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600"
-        >
-          Create Transaction
-        </button>
-      </Form> */}
-        <ul>
-          {transactions.map((transaction) => {
-            return (
-              <li key={transaction.id}>
-                {transaction.label} - {transaction.amount} -{" "}
-                {transaction.date.toString()}
-              </li>
-            );
-          })}
-        </ul>
-      </main>
-    </div>
+        </Field>
+        <Button type="button" onClick={handleSubmit}>
+          Submit
+        </Button>
+      </form>
+
+      <ul>
+        {transactions.map((transaction) => {
+          return (
+            <li key={transaction.id}>
+              {transaction.label} - {transaction.value} -{" "}
+              {transaction.date.toString()}
+            </li>
+          );
+        })}
+      </ul>
+    </main>
   );
 };
 
