@@ -28,6 +28,7 @@ function formatDateForInput(date: Date): string {
   return date.toISOString().split("T")[0];
 }
 
+// TODO: see more at https://ui.shadcn.com/docs/forms/react-hook-form
 export function FormDialog({
   mode,
   triggerLabel,

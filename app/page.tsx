@@ -30,11 +30,11 @@ const Home = () => {
   };
 
   return (
-    <main className="flex flex-col md:flex-row">
+    <main className="flex flex-col gap-4 p-8">
       <FormDialog
         mode="create"
-        triggerLabel="test"
-        dialogTitle="test"
+        triggerLabel="Add an expense"
+        dialogTitle="Add an expense"
         onSubmit={handleSubmit}
       />
 
