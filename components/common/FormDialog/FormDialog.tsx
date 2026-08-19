@@ -38,7 +38,7 @@ export function FormDialog({
   onSubmit,
 }: FormDialogProps) {
   const [label, setLabel] = useState(
-    mode === "edit" && transaction ? transaction.label : "",
+    mode === "edit" && transaction ? transaction.label : undefined,
   );
   const [date, setDate] = useState(
     mode === "edit" && transaction
@@ -46,23 +46,27 @@ export function FormDialog({
       : formatDateForInput(new Date()),
   );
   const [value, setValue] = useState(
-    mode === "edit" && transaction ? transaction.value : 0,
+    mode === "edit" && transaction ? transaction.value : undefined,
   );
 
   const resetForm = () => {
-    setLabel("");
+    setLabel(undefined);
     setDate(formatDateForInput(new Date()));
-    setValue(0);
+    setValue(undefined);
   };
 
   const handleSubmit = async () => {
-    const data = {
-      label,
-      date: new Date(date),
-      value,
-    };
-    onSubmit(data);
-    resetForm();
+    if (label && value) {
+      const data = {
+        label,
+        date: new Date(date),
+        value,
+      };
+      onSubmit(data);
+      resetForm();
+    } else {
+      alert("missing values!");
+    }
   };
 
   return (
