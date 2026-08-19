@@ -5,9 +5,10 @@ import { useEffect } from "react";
 
 import FormDialog from "@/components/common/FormDialog/FormDialog";
 import { Transaction } from "@/lib/types";
+import TransactionTable from "@/components/common/TransactionsTable/TransactionsTable";
 
 const Home = () => {
-  const { expenses, getExpenses, createExpense } = useExpenseStore();
+  const { getExpenses, createExpense } = useExpenseStore();
 
   useEffect(() => {
     function fetchData() {
@@ -38,15 +39,7 @@ const Home = () => {
         onSubmit={handleSubmit}
       />
 
-      <ul>
-        {expenses.map((expense) => {
-          return (
-            <li key={expense.id}>
-              {expense.label} - {expense.value} - {expense.date.toString()}
-            </li>
-          );
-        })}
-      </ul>
+      <TransactionTable />
     </main>
   );
 };
