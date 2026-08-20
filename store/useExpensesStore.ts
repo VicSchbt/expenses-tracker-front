@@ -4,8 +4,10 @@ import { create } from "zustand";
 
 interface ExpensesStore {
   expenses: Transaction[];
-  getExpenses: () => void;
-  createExpense: (transaction: Omit<Transaction, "id" | "type">) => void;
+  getExpenses: () => Promise<void>;
+  createExpense: (
+    transaction: Omit<Transaction, "id" | "type">,
+  ) => Promise<Transaction>;
   //   removeTransaction: (id: string) => void;
   //   updateTransaction: (id: string, Transaction: Partial<Transaction>) => void;
 }
@@ -17,7 +19,9 @@ export const useExpenseStore = create<ExpensesStore>((set) => ({
     set({ expenses: transactions });
   },
   createExpense: async (transaction: Omit<Transaction, "id" | "type">) => {
-    await createExpense(transaction);
-    getExpenses();
+    const newExpense = await createExpense(transaction);
+    const transactions = await getExpenses();
+    set({ expenses: transactions });
+    return newExpense;
   },
 }));

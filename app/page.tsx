@@ -26,8 +26,8 @@ const Home = () => {
   }, [getExpenses]);
 
   const handleSubmit = async (data: Omit<Transaction, "id" | "type">) => {
-    await createExpense(data);
-    getExpenses();
+    const newExpense = await createExpense(data);
+    return newExpense;
   };
 
   return (
@@ -36,7 +36,7 @@ const Home = () => {
         mode="create"
         triggerLabel="Add an expense"
         dialogTitle="Add an expense"
-        onSubmit={handleSubmit}
+        handleSubmit={handleSubmit}
       />
 
       <TransactionTable />

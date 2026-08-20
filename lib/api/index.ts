@@ -16,7 +16,11 @@ export async function getExpenses(): Promise<Transaction[]> {
     headers: {
       "Content-Type": "application/json",
     },
+    cache: "no-store",
   });
+  if (!response.ok) {
+    throw new Error("Failed to fetch expenses");
+  }
   return response.json() as Promise<Transaction[]>;
 }
 
@@ -30,5 +34,9 @@ export async function createExpense(
     },
     body: JSON.stringify(request),
   });
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    throw new Error(error?.message ?? "Failed to create expense");
+  }
   return response.json() as Promise<Transaction>;
 }

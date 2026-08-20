@@ -12,6 +12,7 @@ export async function GET() {
       headers: {
         "Content-Type": "application/json",
       },
+      cache: "no-store",
     });
 
     const data = await response.json();
@@ -24,8 +25,6 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log(body);
-
     const url = `${API_BASE_URL}/${SUFFIX_URL}`;
 
     const response = await fetch(url, {
