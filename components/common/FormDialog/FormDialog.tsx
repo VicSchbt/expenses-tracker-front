@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -40,7 +42,7 @@ interface FormDialogProps {
   transaction?: Transaction;
   handleSubmit: (
     data: Omit<Transaction, "id" | "type">,
-  ) => Promise<Transaction>;
+  ) => Promise<Transaction | null>;
 }
 
 const createExpenseFormSchema = z.object({

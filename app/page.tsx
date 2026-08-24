@@ -8,12 +8,12 @@ import { Transaction } from "@/lib/types";
 import TransactionTable from "@/components/common/TransactionsTable/TransactionsTable";
 
 const Home = () => {
-  const { getExpenses, createExpense } = useExpenseStore();
+  const { getExpenses, createExpense, error } = useExpenseStore();
 
   useEffect(() => {
-    function fetchData() {
+    async function  fetchData() {
       try {
-        getExpenses();
+        await getExpenses();
       } catch (err) {
         const errorMessage =
           err instanceof Error
@@ -27,6 +27,7 @@ const Home = () => {
 
   const handleSubmit = async (data: Omit<Transaction, "id" | "type">) => {
     const newExpense = await createExpense(data);
+    if (error) console.log(error)
     return newExpense;
   };
 

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 
 import { features, type DataTableFeatures } from "./data-table-features";
+import { Button } from "@/components/ui/button";
 
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<DataTableFeatures, TData>[];
@@ -26,8 +27,15 @@ export function DataTable<TData extends RowData>({
     features,
     data,
     columns,
+    initialState: {
+      pagination: {
+        pageIndex: 0,
+        pageSize: 15,
+      },
+    },
   });
 
+  console.log('rows', table.getRowModel().rows.length, 'data', data.length);
   return (
     <div className="overflow-hidden rounded-md border">
       <Table>
@@ -69,6 +77,24 @@ export function DataTable<TData extends RowData>({
           )}
         </TableBody>
       </Table>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }
